@@ -5,13 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#121212">
 <link rel="manifest" href="/manifest.json">
-
-<!-- Теги для установки на iPhone (iOS) -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Bobify">
-<link rel="apple-touch-icon" href="/icon.png">
-
 <title>Bobify</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -91,8 +87,8 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 <div class="top-bar">
   <div class="logo">BOBIFY</div>
-  <!-- Кнопка умная: вызывает функцию handleDownload() -->
-  <button class="download-app-btn" onclick="handleDownload()">Скачать</button>
+  <!-- Простая кнопка без сложных скриптов -->
+  <a href="https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk" class="download-app-btn" id="downloadBtn">Скачать</a>
 </div>
 
 <div class="header" id="search-header">
@@ -140,27 +136,23 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio"></audio>
 
 <script>
-// УМНАЯ КНОПКА СКАЧИВАНИЯ
-function handleDownload() {
-    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-        alert("Чтобы установить Bobify на iPhone:\n\n1. Нажмите кнопку 'Поделиться' (квадрат со стрелкой вверх) в Safari.\n2. Пролистайте вниз и выберите 'На экран Домой'.\n3. Нажмите 'Добавить'.\n\nПриложение появится на рабочем столе!");
-    } else {
-        window.location.href = "https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk";
-    }
-}
-
-// Безопасная регистрация Service Worker для PWA
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(function() {});
-}
-
 var queue = [], currentIndex = -1;
 var favs = [], downloads = [];
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
+
+// Простая подмена ссылки для iPhone (без сложных скриптов)
+var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+if (isIOS) {
+    var dlBtn = document.getElementById('downloadBtn');
+    dlBtn.href = "#";
+    dlBtn.onclick = function(e) {
+        e.preventDefault();
+        alert("Чтобы установить Bobify на iPhone:\n\n1. Нажмите кнопку 'Поделиться' (квадрат со стрелкой вверх) в Safari.\n2. Выберите 'На экран Домой'.\n3. Нажмите 'Добавить'.");
+    };
+}
 
 var audio = document.getElementById('audio');
 
@@ -379,4 +371,6 @@ function playTrack(index) {
 
 function playNext() { if(queue && queue.length > 0) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
 function playPrev() { if(queue && queue.length > 0) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
-function togglePlay() { if(!audio.src) return; if(audio.paused)
+function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
+function toggleFavCurrent() { if(currentIndex !== -1) toggleFav('list-search', currentIndex, document.getElementById('fp-fav')); }
+function downloadCurrent() { if(currentIndex !== -1) downloadTrack('list-search', currentIndex, 
