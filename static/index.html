@@ -8,6 +8,9 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background: #121212; color: #fff; font-family: system-ui, sans-serif; padding: 15px; padding-bottom: 150px; }
 
+/* ПЛАШКА ОШИБКИ */
+#debug { display: none; position: fixed; top: 0; left: 0; right: 0; background: #ff0000; color: #fff; padding: 15px; z-index: 9999; font-size: 14px; text-align: center; word-break: break-all; }
+
 .top-bar { display: flex; align-items: center; margin-bottom: 15px; }
 .logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #1ed760; text-transform: uppercase; }
 .header { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
@@ -16,41 +19,34 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 #btn-search { 
   background: #1ed760; border: none; width: 50px; height: 50px; border-radius: 50%; 
   display: flex; align-items: center; justify-content: center; cursor: pointer;
-  box-shadow: 0 4px 10px rgba(30, 215, 96, 0.3);
 }
-#btn-search:active { transform: scale(0.9); }
-
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 
-/* Горизонтальный скролл */
 .h-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
 .h-scroll::-webkit-scrollbar { display: none; }
 .h-card { flex: 0 0 110px; background: #181818; padding: 8px; border-radius: 8px; cursor: pointer; }
 .h-card img { width: 100%; aspect-ratio: 1; border-radius: 6px; object-fit: cover; margin-bottom: 8px; background: #333;}
 .h-card .t-title { font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.h-card .t-artist { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
+.h-card .t-artist { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .track { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; border-bottom: 1px solid #282828; }
-.track:active { background: #282828; }
 .track img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #333; cursor: pointer; }
 .t-info { flex: 1; min-width: 0; cursor: pointer; }
 .t-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-artist { font-size: 13px; color: #aaa; }
-.action-btn { background: none; border: none; font-size: 22px; padding: 8px; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+.action-btn { background: none; border: none; font-size: 22px; padding: 8px; color: #aaa; cursor: pointer; }
 .action-btn.active { color: #1ed760; }
 
 .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #282828; z-index: 50; }
-.nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #aaa; font-size: 11px; cursor: pointer; gap: 4px; padding: 5px 20px;}
+.nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 11px; cursor: pointer; gap: 4px; padding: 5px 15px; }
 .nav-item.active { color: #fff; }
-.nav-item svg { width: 26px; height: 26px; fill: currentColor; }
-.nav-text { font-weight: 500; }
+.nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
 #mini-player { display: none; position: fixed; bottom: 70px; left: 8px; right: 8px; background: #181818; padding: 10px 15px; align-items: center; gap: 12px; border-radius: 8px; z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer;}
 #mini-player img { width: 40px; height: 40px; border-radius: 4px; background: #333; }
 .m-info { flex: 1; min-width: 0; }
 .m-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #000;}
-.play-btn-mini svg { width: 20px; height: 20px; fill: currentColor; }
+.play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 14px; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center;}
 
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 40px; }
 .fp-header { display: flex; margin-bottom: 20px; }
@@ -64,46 +60,41 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
 .time-text { font-size: 12px; color: #aaa; min-width: 35px; text-align: center; }
 input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #4d4d4d; border-radius: 2px; }
 .controls { display: flex; justify-content: center; align-items: center; gap: 30px; }
 .ctrl-btn { background: none; border: none; color: white; font-size: 32px; cursor: pointer; }
-.play-btn-main { background: #1ed760; color: black; border: none; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(30,215,96,0.3);}
-.play-btn-main svg { width: 32px; height: 32px; fill: currentColor; }
+.play-btn-main { background: #1ed760; color: black; border: none; width: 70px; height: 70px; border-radius: 50%; font-size: 28px; display: flex; justify-content: center; align-items: center; cursor: pointer;}
 </style>
 </head>
 <body>
+
+<div id="debug"></div>
 
 <div class="top-bar">
   <div class="logo">BOBIFY</div>
 </div>
 
-<div id="search-wrapper" class="header">
-  <input id="q" placeholder="Что послушаем?" onkeypress="if(event.key==='Enter') search()">
-  <button id="btn-search" onclick="search()">
+<div class="header" id="search-header">
+  <input id="q" placeholder="Что послушаем?">
+  <button id="btn-search">
     <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="10" cy="10" r="7"></circle>
-      <line x1="21" y1="21" x2="15" y2="15"></line>
-      <path d="M10 7v5.5"></path>
-      <circle cx="8.5" cy="12.5" r="1.5" fill="#000" stroke="none"></circle>
-      <path d="M10 7l2-1"></path>
+      <circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line><path d="M10 7v5.5"></path><circle cx="8.5" cy="12.5" r="1.5" fill="#000" stroke="none"></circle><path d="M10 7l2-1"></path>
     </svg>
   </button>
 </div>
 
 <div id="list"></div>
 
-<div id="mini-player" onclick="openFullPlayer()">
+<div id="mini-player">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
-  <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">
-    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-  </button>
+  <button class="play-btn-mini" id="mini-play-btn">▶</button>
 </div>
 
 <div id="full-player">
   <div class="fp-header">
-    <button class="back-btn" onclick="closeFullPlayer()">
+    <button class="back-btn" id="btn-close">
       <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
     </button>
   </div>
@@ -112,61 +103,67 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   <div class="fp-artist" id="fp-artist"></div>
   
   <div class="fp-actions">
-    <button id="fp-fav-btn" class="fp-action-btn" onclick="toggleFav()"></button>
-    <button id="fp-dl-btn" class="fp-action-btn" onclick="downloadCurrent()"></button>
+    <button id="fp-fav" class="fp-action-btn"></button>
+    <button id="fp-dl" class="fp-action-btn"></button>
   </div>
 
   <div class="progress-container">
     <span id="time-current" class="time-text">0:00</span>
-    <input type="range" id="seekBar" value="0" min="0" max="100" step="0.1" oninput="seekAudio()">
+    <input type="range" id="seekBar" value="0" min="0" max="100" step="0.1">
     <span id="time-total" class="time-text">0:00</span>
   </div>
   <div class="controls">
-    <button class="ctrl-btn" onclick="playPrev()">
-      <svg viewBox="0 0 24 24" width="32" height="32" fill="white"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-    </button>
-    <button class="play-btn-main" id="main-play-btn" onclick="togglePlay()">
-      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-    <button class="ctrl-btn" onclick="playNext()">
-      <svg viewBox="0 0 24 24" width="32" height="32" fill="white"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-    </button>
+    <button class="ctrl-btn" id="btn-prev">⏮</button>
+    <button class="play-btn-main" id="main-play-btn">▶</button>
+    <button class="ctrl-btn" id="btn-next">⏭</button>
   </div>
 </div>
 
 <div class="navbar">
-  <div class="nav-item active" id="tab-home" onclick="switchTab('home')">
-    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-    <span class="nav-text">Главная</span>
+  <div class="nav-item active" id="tab-home">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главная
   </div>
-  <div class="nav-item" id="tab-favs" onclick="switchTab('favs')">
-    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-    <span class="nav-text">Избранное</span>
+  <div class="nav-item" id="tab-favs">
+    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Избранное
   </div>
-  <div class="nav-item" id="tab-downloads" onclick="switchTab('downloads')">
-    <svg viewBox="0 0 24 24">
-      <path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/>
-    </svg>
-    <span class="nav-text">Скачанные</span>
+  <div class="nav-item" id="tab-downloads">
+    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>Скачанные
   </div>
 </div>
 
 <audio id="audio"></audio>
 
 <script>
+// Ловушка ошибок
+window.onerror = function(msg, url, line) {
+  var d = document.getElementById('debug');
+  d.style.display = 'block';
+  d.innerText = 'ОШИБКА: ' + msg + ' (строка ' + line + ')';
+  return false;
+};
+
 var queue = [], currentIndex = -1;
 var favs = [], downloads = [], playHistory = [];
-var currentTab = 'home';
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
-// Загрузка данных (безопасно)
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
 try { var h = localStorage.getItem('playHistory'); if(h) playHistory = JSON.parse(h); } catch(e) {}
 
-var iconPlay = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-var iconPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-var iconLoading = '<svg viewBox="0 0 24 24"><path d="M12 2v4l2.3-2.3L12 2z"/></svg>';
+// Привязка кнопок
+document.getElementById('btn-search').onclick = function() { search(); };
+document.getElementById('tab-home').onclick = function() { switchTab('home'); };
+document.getElementById('tab-favs').onclick = function() { switchTab('favs'); };
+document.getElementById('tab-downloads').onclick = function() { switchTab('downloads'); };
+document.getElementById('btn-close').onclick = function() { document.getElementById('full-player').style.display = 'none'; };
+document.getElementById('main-play-btn').onclick = function() { togglePlay(); };
+document.getElementById('mini-play-btn').onclick = function(e) { e.stopPropagation(); togglePlay(); };
+document.getElementById('mini-player').onclick = function() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; };
+document.getElementById('btn-next').onclick = function() { playNext(); };
+document.getElementById('btn-prev').onclick = function() { playPrev(); };
+document.getElementById('fp-fav').onclick = function() { toggleFav(); };
+document.getElementById('fp-dl').onclick = function() { downloadCurrent(); };
+document.getElementById('seekBar').oninput = function() { var a = document.getElementById('audio'); if(a.duration) a.currentTime = (this.value / 100) * a.duration; };
 
 var audio = document.getElementById('audio');
 audio.ontimeupdate = function() {
@@ -178,91 +175,68 @@ audio.ontimeupdate = function() {
 audio.onended = function() { playNext(); };
 
 function switchTab(tab) {
-  currentTab = tab;
-  // Сброс активных кнопок
-  var navs = document.querySelectorAll('.nav-item');
-  for(var i=0; i<navs.length; i++) { navs[i].className = 'nav-item'; }
+  document.getElementById('tab-home').className = 'nav-item';
+  document.getElementById('tab-favs').className = 'nav-item';
+  document.getElementById('tab-downloads').className = 'nav-item';
+  document.getElementById('tab-' + tab).className = 'nav-item active';
   
-  var el = document.getElementById('tab-' + tab);
-  if(el) el.className = 'nav-item active';
+  document.getElementById('search-header').style.display = tab === 'home' ? 'flex' : 'none';
 
-  if(tab === 'home') {
-    document.getElementById('search-wrapper').style.display = 'flex';
-    renderHome();
-  } else if (tab === 'favs') {
-    document.getElementById('search-wrapper').style.display = 'none';
-    renderList(favs, 'Избранное');
-  } else {
-    document.getElementById('search-wrapper').style.display = 'none';
-    renderList(downloads, 'Скачанные');
-  }
+  if(tab === 'home') renderHome();
+  else if (tab === 'favs') renderList(favs, 'Избранное');
+  else renderList(downloads, 'Скачанные');
 }
 
 function renderHome() {
   var list = document.getElementById('list');
   var html = '';
-
   if(playHistory.length > 0) {
     html += '<div class="section-title">Недавно прослушано</div><div class="h-scroll">';
     for(var i=0; i<playHistory.length && i<5; i++) {
       var t = playHistory[i];
-      html += '<div class="h-card" onclick="playFromHome(\'history\', '+i+')">' +
-              '<img src="'+(t.thumb||defaultImg)+'" onerror="this.src=\''+defaultImg+'\'">' +
-              '<div class="t-title">'+t.title+'</div>' +
-              '<div class="t-artist">'+t.artist+'</div>' +
-              '</div>';
+      html += '<div class="h-card" onclick="playFromHome(\'history\', '+i+')"><img src="'+(t.thumb||defaultImg)+'"><div class="t-title">'+t.title+'</div><div class="t-artist">'+t.artist+'</div></div>';
     }
     html += '</div>';
+    
+    if(playHistory[0].artist && playHistory[0].artist !== 'SoundCloud') {
+      html += '<div class="section-title">Потому что вы слушали '+playHistory[0].artist+'</div><div class="h-scroll" id="recs"><p style="color:#aaa;padding:10px;">Загрузка...</p></div>';
+    }
   }
-
-  if(playHistory.length > 0 && playHistory[0].artist && playHistory[0].artist !== 'SoundCloud') {
-    html += '<div class="section-title">Потому что вы слушали '+playHistory[0].artist+'</div>';
-    html += '<div class="h-scroll" id="recommendations"><p style="color:#aaa;padding:10px;">Загрузка...</p></div>';
-  }
-
-  if(favs.length > 0) { html += '<div class="section-title">Ваша музыка</div>'; }
-  else if (playHistory.length === 0) { html += '<p style="text-align:center;margin-top:40px;color:#aaa;">Включите трек, и здесь появятся рекомендации!</p>'; }
+  if(favs.length > 0) html += '<div class="section-title">Ваша музыка</div>';
+  else if (playHistory.length === 0) html += '<p style="text-align:center;margin-top:40px;color:#aaa;">Включите трек, и здесь появятся рекомендации!</p>';
   
   list.innerHTML = html;
   if(favs.length > 0) drawTracks(favs);
-  if(playHistory.length > 0 && playHistory[0].artist !== 'SoundCloud') loadRecommendations(playHistory[0].artist);
+  if(playHistory.length > 0 && playHistory[0].artist !== 'SoundCloud') loadRecs(playHistory[0].artist);
 }
 
-function loadRecommendations(artist) {
+function loadRecs(artist) {
   fetch('/search?q=' + encodeURIComponent(artist))
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if(data.error) return;
     var recs = [];
     for(var i=0; i<data.length; i++) {
-      var t = data[i];
-      var inHistory = false;
-      for(var j=0; j<playHistory.length; j++) { if(playHistory[j].id === t.id) inHistory = true; }
-      if(!inHistory) recs.push(t);
-      if(recs.length >= 6) break;
+      var inHist = false;
+      for(var j=0; j<playHistory.length; j++) { if(playHistory[j].id === data[i].id) inHist = true; }
+      if(!inHist) recs.push(data[i]);
+      if(recs.length >= 5) break;
     }
-    
-    var recDiv = document.getElementById('recommendations');
-    if(recDiv) {
-      if(recs.length === 0) { recDiv.innerHTML = '<p style="color:#aaa;padding:10px;">Нет новых рекомендаций</p>'; return; }
-      var recHtml = '';
+    var el = document.getElementById('recs');
+    if(el) {
+      if(recs.length === 0) { el.innerHTML = '<p style="color:#aaa;padding:10px;">Нет новых рекомендаций</p>'; return; }
+      var h = '';
       for(var k=0; k<recs.length; k++) {
-        var t = recs[k];
-        recHtml += '<div class="h-card" onclick="playFromHome(\'recs\', '+k+')">' +
-                   '<img src="'+(t.thumb||defaultImg)+'" onerror="this.src=\''+defaultImg+'\'">' +
-                   '<div class="t-title">'+t.title+'</div>' +
-                   '<div class="t-artist">'+t.artist+'</div>' +
-                   '</div>';
+        h += '<div class="h-card" onclick="playFromHome(\'recs\', '+k+')"><img src="'+(recs[k].thumb||defaultImg)+'"><div class="t-title">'+recs[k].title+'</div><div class="t-artist">'+recs[k].artist+'</div></div>';
       }
-      recDiv.innerHTML = recHtml;
+      el.innerHTML = h;
       window.homeRecs = recs;
     }
-  }).catch(function() {});
+  }).catch(function(e) {});
 }
 
 function playFromHome(type, index) {
-  if(type === 'recs') queue = window.homeRecs || [];
-  else queue = playHistory;
+  queue = (type === 'recs') ? window.homeRecs : playHistory;
   playTrack(index);
 }
 
@@ -287,10 +261,8 @@ function drawTracks(data) {
                       '<button class="action-btn '+(isFav?'active':'')+'">'+(isFav?getHeartIcon(true):getHeartIcon(false))+'</button>' +
                       '<button class="action-btn">'+(isDl?getCheckIcon():getDlIcon())+'</button>';
       
-      var img = div.querySelector('img');
-      var info = div.querySelector('.t-info');
-      img.onclick = function() { queue = data; playTrack(index); };
-      info.onclick = function() { queue = data; playTrack(index); };
+      div.querySelector('img').onclick = function() { queue = data; playTrack(index); };
+      div.querySelector('.t-info').onclick = function() { queue = data; playTrack(index); };
       
       var btns = div.querySelectorAll('.action-btn');
       btns[0].onclick = function(e) { e.stopPropagation(); toggleFavTrack(track, this); };
@@ -320,8 +292,8 @@ function toggleFavTrack(track, btn) {
   if(idx !== -1) { favs.splice(idx, 1); btn.className = 'action-btn'; btn.innerHTML = getHeartIcon(false); }
   else { favs.push(track); btn.className = 'action-btn active'; btn.innerHTML = getHeartIcon(true); }
   localStorage.setItem('favs', JSON.stringify(favs));
-  if(currentTab === 'favs') switchTab('favs');
-  if(currentTab === 'home') renderHome();
+  if(document.getElementById('tab-favs').className.indexOf('active') !== -1) switchTab('favs');
+  if(document.getElementById('tab-home').className.indexOf('active') !== -1) renderHome();
 }
 
 function downloadTrack(track, btn) {
@@ -356,25 +328,19 @@ function playTrack(index) {
   document.getElementById('fp-title').innerText = t.title;
   document.getElementById('mini-title').innerText = t.title;
   document.getElementById('fp-artist').innerText = 'Загрузка...';
-  
-  document.getElementById('main-play-btn').innerHTML = iconLoading;
-  document.getElementById('mini-play-btn').innerHTML = iconLoading;
+  document.getElementById('main-play-btn').innerText = '⏳';
   
   var isFav = false; for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) isFav = true; }
-  document.getElementById('fp-fav-btn').innerHTML = getHeartIcon(isFav);
-  document.getElementById('fp-fav-btn').className = 'fp-action-btn ' + (isFav?'active':'');
+  document.getElementById('fp-fav').innerHTML = getHeartIcon(isFav);
+  document.getElementById('fp-fav').className = 'fp-action-btn ' + (isFav?'active':'');
 
   var audio = document.getElementById('audio'); audio.pause();
-  
   var downloaded = null;
   for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) downloaded = downloads[i]; }
 
   if (downloaded) {
     audio.src = '/play/' + downloaded.file; audio.load();
-    audio.play().then(function() { 
-      document.getElementById('main-play-btn').innerHTML = iconPause; 
-      document.getElementById('mini-play-btn').innerHTML = iconPause;
-    });
+    audio.play().then(function() { document.getElementById('main-play-btn').innerText = '❚❚'; });
     document.getElementById('fp-artist').innerText = t.artist;
   } else {
     fetch('/stream_url?url=' + encodeURIComponent(t.url))
@@ -382,10 +348,20 @@ function playTrack(index) {
     .then(function(d) {
       if(d.stream_url) {
         audio.src = d.stream_url; audio.load();
-        audio.play().then(function() { 
-          document.getElementById('main-play-btn').innerHTML = iconPause; 
-          document.getElementById('mini-play-btn').innerHTML = iconPause;
-        });
+        audio.play().then(function() { document.getElementById('main-play-btn').innerText = '❚❚'; });
         document.getElementById('fp-artist').innerText = t.artist;
       } else throw new Error('Нет потока');
-    }).catch(fu
+    }).catch(function() {
+      downloadTrack(t, document.getElementById('fp-dl'));
+      setTimeout(function(){ playTrack(index); }, 3000);
+    });
+  }
+}
+
+function togglePlay() {
+  var a = document.getElementById('audio'); if(!a.src) return;
+  if(a.paused) { a.play(); document.getElementById('main-play-btn').innerText = '❚❚'; document.getElementById('mini-play-btn').innerText = '❚❚'; }
+  else { a.pause(); document.getElementById('main-play-btn').innerText = '▶'; document.getElementById('mini-play-btn').innerText = '▶'; }
+}
+function toggleFav() { if(currentIndex !== -1) toggleFavTrack(queue[currentIndex], document.getElementById('fp-fav')); }
+function downloadCurrent() { if(currentIndex !== -1) downloadTrack(queue[currentIndex], docu
