@@ -57,16 +57,27 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </head>
 <body>
 
+<!-- ЖАНРЫ СРАЗУ В HTML (БЕЗ JS) -->
+<div id="view-home" style="display:block;">
+  <div class="section-title">Жанры и настроения</div>
+  <div class="genres-grid">
+    <div class="genre-card" style="background:#ba5d07" onclick="searchByGenre('rap hits')">Рэп</div>
+    <div class="genre-card" style="background:#8d67ab" onclick="searchByGenre('pop music')">Поп</div>
+    <div class="genre-card" style="background:#148a08" onclick="searchByGenre('phonk')">Фонк</div>
+    <div class="genre-card" style="background:#e91429" onclick="searchByGenre('rock classics')">Рок</div>
+    <div class="genre-card" style="background:#503750" onclick="searchByGenre('lofi beats')">Lo-Fi</div>
+    <div class="genre-card" style="background:#dc148c" onclick="searchByGenre('indie music')">Инди</div>
+    <div class="genre-card" style="background:#0d72ea" onclick="searchByGenre('hip hop')">Хип-Хоп</div>
+    <div class="genre-card" style="background:#e8115b" onclick="searchByGenre('jazz')">Джаз</div>
+  </div>
+</div>
+
 <div id="view-search" style="display:none;">
   <div class="header">
     <input id="q" placeholder="Что послушаем?" onkeypress="if(event.key==='Enter') search()">
     <button class="btn-search" onclick="search()">Найти</button>
   </div>
   <div id="list-search"></div>
-</div>
-
-<div id="view-home" style="display:none;">
-  <div id="home-content"></div>
 </div>
 
 <div id="view-library" style="display:none;">
@@ -103,7 +114,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </div>
 
 <div class="navbar">
-  <div class="nav-item" onclick="switchTab('home')" id="tab-home">
+  <div class="nav-item active" onclick="switchTab('home')" id="tab-home">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главная
   </div>
   <div class="nav-item" onclick="switchTab('search')" id="tab-search">
@@ -135,17 +146,6 @@ var favs = getStorage('favs');
 var downloads = getStorage('downloads');
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
-var genres = [
-  { name: 'Рэп', color: '#ba5d07', query: 'rap hits' },
-  { name: 'Поп', color: '#8d67ab', query: 'pop music' },
-  { name: 'Фонк', color: '#148a08', query: 'phonk' },
-  { name: 'Рок', color: '#e91429', query: 'rock classics' },
-  { name: 'Lo-Fi', color: '#503750', query: 'lofi beats' },
-  { name: 'Инди', color: '#dc148c', query: 'indie music' },
-  { name: 'Хип-Хоп', color: '#0d72ea', query: 'hip hop' },
-  { name: 'Джаз', color: '#e8115b', query: 'jazz' }
-];
-
 function switchTab(tab) {
   var navs = document.querySelectorAll('.nav-item');
   for(var i=0; i<navs.length; i++) { navs[i].classList.remove('active'); }
@@ -158,23 +158,12 @@ function switchTab(tab) {
 
   if (tab === 'home') {
     document.getElementById('view-home').style.display = 'block';
-    renderHome();
   } else if (tab === 'search') {
     document.getElementById('view-search').style.display = 'block';
   } else {
     document.getElementById('view-library').style.display = 'block';
     renderLibrary(tab);
   }
-}
-
-function renderHome() {
-  var html = '<div class="section-title">Жанры и настроения</div><div class="genres-grid">';
-  for(var i=0; i<genres.length; i++) {
-    var g = genres[i];
-    html += '<div class="genre-card" style="background:'+g.color+'" onclick="searchByGenre(\''+g.query+'\')">'+g.name+'</div>';
-  }
-  html += '</div>';
-  document.getElementById('home-content').innerHTML = html;
 }
 
 function searchByGenre(query) {
@@ -409,4 +398,4 @@ function togglePlay() {
   if(a.paused) { a.play(); document.getElementById('main-play-btn').innerText = '❚❚'; document.getElementById('mini-play-btn').innerText = '❚❚'; }
   else { a.pause(); document.getElementById('main-play-btn').innerText = '▶'; document.getElementById('mini-play-btn').innerText = '▶'; }
 }
-function playNext() { if(queue.length===0) return; currentInde
+function playNext() { if(que
