@@ -137,11 +137,11 @@ function safeParse(key, fallback) {
 
 var queue = [], currentIndex = -1;
 var favs = safeParse('favs', []);
-var history = safeParse('history', []);
+var playHistory = safeParse('history', []); 
 var downloads = safeParse('downloads', []);
 
 if (!Array.isArray(favs)) favs = [];
-if (!Array.isArray(history)) history = [];
+if (!Array.isArray(playHistory)) playHistory = [];
 if (!Array.isArray(downloads)) downloads = [];
 
 var homeHistory = [], homeRecs = [];
@@ -185,8 +185,8 @@ function renderHome() {
   });
   html += `</div>`;
 
-  if (history.length > 0) {
-    homeHistory = history.slice(0, 5);
+  if (playHistory.length > 0) {
+    homeHistory = playHistory.slice(0, 5);
     html += `<div class="section-title">Недавно прослушано</div><div class="h-scroll">`;
     homeHistory.forEach(function(t, i) {
       html += `<div class="h-card" onclick="playFromHome('history', ${i})">
@@ -197,7 +197,7 @@ function renderHome() {
     });
     html += `</div>`;
     
-    var lastArtist = history[0] ? history[0].artist : '';
+    var lastArtist = playHistory[0] ? playHistory[0].artist : '';
     if (lastArtist && lastArtist !== 'SoundCloud') {
       html += `<div class="section-title">Потому что вы слушали ${lastArtist}</div><div class="h-scroll" id="recommendations"><p style="color:#aaa;padding:10px;">Загрузка...</p></div>`;
     }
@@ -207,8 +207,8 @@ function renderHome() {
   
   document.getElementById('home-content').innerHTML = html;
   
-  if (history.length > 0 && history[0] && history[0].artist !== 'SoundCloud') {
-      loadRecommendations(history[0].artist);
+  if (playHistory.length > 0 && playHistory[0] && playHistory[0].artist !== 'SoundCloud') {
+      loadRecommendations(playHistory[0].artist);
   }
 }
 
@@ -217,7 +217,7 @@ function loadRecommendations(artist) {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if(data.error) return;
-    homeRecs = data.filter(function(t) { return !history.some(function(h) { return h.id === t.id; }); }).slice(0, 5);
+    homeRecs = data.filter(function(t) { return !playHistory.some(function(h) { return h.id === t.id; }); }).slice(0, 5);
     var recDiv = document.getElementById('recommendations');
     
     if(recDiv) {
@@ -230,7 +230,7 @@ function loadRecommendations(artist) {
           </div>`;
         }).join('');
     }
-  }).catch(function() {});
+  }).catch(function(e) {});
 }
 
 function playFromHome(type, index) {
@@ -295,7 +295,7 @@ function search() {
         <button class="action-btn" onclick="downloadSearch(${i}, this)">${isDl ? getCheckIcon() : getDlIcon()}</button>
       </div>`;
     }).join('');
-  }).catch(function() { document.getElementById('list-search').innerText = 'Ошибка сети'; });
+  }).catch(function(e) { document.getElementById('list-search').innerText = 'Ошибка сети'; });
 }
 
 function toggleFavSearch(index, btn) {
@@ -348,10 +348,10 @@ function playTrack(index) {
   currentIndex = index; var t = queue[index];
   var imgSrc = t.thumb || defaultImg;
   
-  history = history.filter(function(h) { return h.id !== t.id; });
-  history.unshift(t);
-  history = history.slice(0, 20);
-  localStorage.setItem('history', JSON.stringify(history));
+  playHistory = playHistory.filter(function(h) { return h.id !== t.id; });
+  playHistory.unshift(t);
+  playHistory = playHistory.slice(0, 20);
+  localStorage.setItem('history', JSON.stringify(playHistory));
   
   document.getElementById('full-player').style.display = 'flex';
   document.getElementById('mini-player').style.display = 'flex';
@@ -387,5 +387,4 @@ function playTrack(index) {
        audio.src = d.stream_url;
        audio.load();
        audio.play().then(function() { 
-         document.getElementById('main-play-btn').innerText = '❚❚'; 
-         document.getElementById('mini-play-btn').innerT
+         document.getElementById('main-play-btn').
