@@ -78,8 +78,8 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </div>
 
 <div class="header" id="search-header">
-  <input id="q" placeholder="Что послушаем?" onkeypress="if(event.key==='Enter') doSearch()">
-  <button id="btn-search" onclick="doSearch()">
+  <input id="q" placeholder="Что послушаем?">
+  <button id="btn-search">
     <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line><path d="M10 7v5.5"></path><circle cx="8.5" cy="12.5" r="1.5" fill="#000" stroke="none"></circle><path d="M10 7l2-1"></path>
     </svg>
@@ -90,17 +90,17 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <div id="view-favs" style="display:none;"><div id="list-favs"></div></div>
 <div id="view-downloads" style="display:none;"><div id="list-downloads"></div></div>
 
-<div id="mini-player" onclick="openFullPlayer()">
+<div id="mini-player">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
-  <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">
+  <button class="play-btn-mini" id="mini-play-btn">
      <svg id="mini-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
   </button>
 </div>
 
 <div id="full-player">
   <div class="fp-header">
-    <button class="back-btn" onclick="closeFullPlayer()">
+    <button class="back-btn" id="btn-close-player">
       <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
     </button>
   </div>
@@ -109,43 +109,52 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   <div class="fp-artist" id="fp-artist"></div>
   
   <div class="fp-actions">
-    <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()"></button>
-    <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()"></button>
+    <button id="fp-fav" class="fp-action-btn"></button>
+    <button id="fp-dl" class="fp-action-btn"></button>
   </div>
 
   <div class="progress-container">
     <span id="time-current" class="time-text">0:00</span>
-    <input type="range" id="seekBar" value="0" min="0" max="100" step="0.1" oninput="seekAudio()">
+    <input type="range" id="seekBar" value="0" min="0" max="100" step="0.1">
     <span id="time-total" class="time-text">0:00</span>
   </div>
   <div class="controls">
-    <button class="ctrl-btn" onclick="playPrev()">
+    <button class="ctrl-btn" id="btn-prev">
       <svg viewBox="0 0 24 24" fill="white"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
     </button>
-    <button class="play-btn-main" id="main-play-btn" onclick="togglePlay()">
+    <button class="play-btn-main" id="main-play-btn">
       <svg id="main-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
     </button>
-    <button class="ctrl-btn" onclick="playNext()">
+    <button class="ctrl-btn" id="btn-next">
       <svg viewBox="0 0 24 24" fill="white"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
     </button>
   </div>
 </div>
 
 <div class="navbar">
-  <div class="nav-item active" id="tab-search" onclick="switchTab('search')">
+  <div class="nav-item active" id="tab-search">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главная
   </div>
-  <div class="nav-item" id="tab-favs" onclick="switchTab('favs')">
+  <div class="nav-item" id="tab-favs">
     <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Избранное
   </div>
-  <div class="nav-item" id="tab-downloads" onclick="switchTab('downloads')">
+  <div class="nav-item" id="tab-downloads">
     <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>Скачанные
   </div>
 </div>
 
-<audio id="audio" ontimeupdate="updateProgress()" onended="playNext()"></audio>
+<audio id="audio"></audio>
 
 <script>
+// Безопасное экранирование HTML
+function escapeHTML(str) {
+    if (!str) return "";
+    return str.replace(/[&<>'"]/g, function(tag) {
+        var charsToReplace = { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' };
+        return charsToReplace[tag] || tag;
+    });
+}
+
 var queue = [], currentIndex = -1;
 var favs = [], downloads = [];
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
@@ -162,14 +171,46 @@ try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d)
 
 var audio = document.getElementById('audio');
 
-audio.onplay = function() {
-  document.getElementById('main-play-icon').innerHTML = iconPause;
-  document.getElementById('mini-play-icon').innerHTML = iconPause;
-};
-audio.onpause = function() {
-  document.getElementById('main-play-icon').innerHTML = iconPlay;
-  document.getElementById('mini-play-icon').innerHTML = iconPlay;
-};
+// Ждем загрузки страницы, чтобы точно все элементы были на месте
+window.addEventListener('load', function() {
+    // Привязка кнопок меню
+    document.getElementById('tab-search').addEventListener('click', function() { switchTab('search'); });
+    document.getElementById('tab-favs').addEventListener('click', function() { switchTab('favs'); });
+    document.getElementById('tab-downloads').addEventListener('click', function() { switchTab('downloads'); });
+    
+    // Кнопки поиска
+    document.getElementById('btn-search').addEventListener('click', doSearch);
+    document.getElementById('q').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') doSearch();
+    });
+
+    // Кнопки плеера
+    document.getElementById('btn-close-player').addEventListener('click', function() { document.getElementById('full-player').style.display = 'none'; });
+    document.getElementById('mini-player').addEventListener('click', function() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; });
+    document.getElementById('mini-play-btn').addEventListener('click', function(e) { e.stopPropagation(); togglePlay(); });
+    document.getElementById('main-play-btn').addEventListener('click', togglePlay);
+    document.getElementById('btn-next').addEventListener('click', playNext);
+    document.getElementById('btn-prev').addEventListener('click', playPrev);
+    
+    // Кнопки внутри плеера
+    document.getElementById('fp-fav').addEventListener('click', toggleFavCurrent);
+    document.getElementById('fp-dl').addEventListener('click', downloadCurrent);
+    document.getElementById('seekBar').addEventListener('input', seekAudio);
+
+    audio.addEventListener('play', function() {
+        document.getElementById('main-play-icon').innerHTML = iconPause;
+        document.getElementById('mini-play-icon').innerHTML = iconPause;
+    });
+    audio.addEventListener('pause', function() {
+        document.getElementById('main-play-icon').innerHTML = iconPlay;
+        document.getElementById('mini-play-icon').innerHTML = iconPlay;
+    });
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('ended', playNext);
+
+    // Инициализация
+    switchTab('search');
+});
 
 function switchTab(tab) {
   document.getElementById('tab-search').className = 'nav-item';
@@ -221,11 +262,16 @@ function renderListTo(containerId, data, title) {
     var isFav = false; for(var j=0; j<favs.length; j++) { if(favs[j].id === track.id) isFav = true; }
     var isDl = false; for(var k=0; k<downloads.length; k++) { if(downloads[k].id === track.id) isDl = true; }
     
+    var safeTitle = escapeHTML(track.title);
+    var safeArtist = escapeHTML(track.artist);
+    var safeId = escapeHTML(track.id);
+    var safeThumb = track.thumb ? escapeHTML(track.thumb) : defaultImg;
+
     html += '<div class="track">' +
-              '<img src="'+(track.thumb||defaultImg)+'" onerror="this.src=\''+defaultImg+'\'" onclick="playTrackFromList(\''+track.id+'\')">' +
-              '<div class="track-info" onclick="playTrackFromList(\''+track.id+'\')"><div class="t-title">'+track.title+'</div><div class="t-artist">'+track.artist+'</div></div>' +
-              '<button class="action-btn '+(isFav?'active':'')+'" onclick="toggleFavById(\''+track.id+'\', this)"><svg viewBox="0 0 24 24">'+(isFav?iconHeartFill:iconHeart)+'</svg></button>' +
-              '<button class="action-btn" onclick="downloadById(\''+track.id+'\', this)"><svg viewBox="0 0 24 24">'+(isDl?iconCheck:iconDl)+'</svg></button>' +
+              '<img src="'+safeThumb+'" onerror="this.src=\''+defaultImg+'\'" onclick="playTrackFromList(\''+safeId+'\')">' +
+              '<div class="track-info" onclick="playTrackFromList(\''+safeId+'\')"><div class="t-title">'+safeTitle+'</div><div class="t-artist">'+safeArtist+'</div></div>' +
+              '<button class="action-btn '+(isFav?'active':'')+'" onclick="toggleFavById(\''+safeId+'\', this)"><svg viewBox="0 0 24 24">'+(isFav?iconHeartFill:iconHeart)+'</svg></button>' +
+              '<button class="action-btn" onclick="downloadById(\''+safeId+'\', this)"><svg viewBox="0 0 24 24">'+(isDl?iconCheck:iconDl)+'</svg></button>' +
             '</div>';
   }
   container.innerHTML = html;
@@ -313,41 +359,4 @@ function playTrack(index) {
   document.getElementById('fp-dl').innerHTML = '<svg viewBox="0 0 24 24">'+(isDl?iconCheck:iconDl)+'</svg>';
 
   audio.pause();
-  var downloaded = null;
-  for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) downloaded = downloads[i]; }
-
-  if (downloaded) {
-    audio.src = '/play/' + downloaded.file; 
-    audio.load(); audio.play();
-    document.getElementById('fp-artist').innerText = t.artist;
-  } else {
-    fetch('/stream_url?url=' + encodeURIComponent(t.url))
-    .then(function(r) { return r.json().then(function(data){ return {status: r.status, data: data}; }); })
-    .then(function(res) {
-      if(res.data.error === 'DRM_PROTECTED') {
-        alert(res.data.message);
-        document.getElementById('main-play-icon').innerHTML = iconPlay;
-        document.getElementById('fp-artist').innerText = 'Ошибка: DRM';
-        return;
-      }
-      if(res.data.error) throw new Error(res.data.error);
-      
-      audio.src = res.data.stream_url; 
-      audio.load(); audio.play();
-      document.getElementById('fp-artist').innerText = t.artist;
-    }).catch(function() {
-      downloadById(t.id, document.getElementById('fp-dl'));
-      setTimeout(function(){ playTrack(index); }, 3000);
-    });
-  }
-}
-
-function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
-function toggleFavCurrent() { if(currentIndex !== -1) toggleFavById(queue[currentIndex].id, document.getElementById('fp-fav')); }
-function downloadCurrent() { if(currentIndex !== -1) downloadById(queue[currentIndex].id, document.getElementById('fp-dl')); }
-function playNext() { if(queue.length) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
-function playPrev() { if(queue.length) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
-function openFullPlayer() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; }
-function closeFullPlayer() { document.getElementById('full-player').style.display = 'none'; }
-function updateProgress() {
-  if(!audio.duration || audio.duration
+  var downloaded = nul
