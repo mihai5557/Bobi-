@@ -23,7 +23,7 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .search-icon { width: 16px; height: 16px; border: 3px solid #000; border-radius: 50%; position: relative; }
 .search-icon::after { content: ''; position: absolute; top: 12px; left: 10px; width: 3px; height: 10px; background: #000; transform: rotate(-45deg); }
 
-/* Списки */
+/* Списки (в которых всё нравится) */
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 .track { display: flex; align-items: center; gap: 12px; padding: 12px 5px; border-radius: 8px; border-bottom: 1px solid #282828; cursor: pointer; }
 .track:active { background: #282828; }
@@ -56,13 +56,30 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-.fp-artist { font-size: 16px; color: #aaa; margin-bottom: 20px; text-align: center; }
-.fp-actions { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; }
-.fp-action-btn { background: rgba(255,255,255,0.1); border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 16px; font-weight: bold;}
+.fp-artist { font-size: 16px; color: #aaa; margin-bottom: 25px; text-align: center; }
+
+/* --- НОВЫЙ ДИЗАЙН КНОПОК В БОЛЬШОМ ПЛЕЕРЕ --- */
+.fp-actions { display: flex; justify-content: center; gap: 25px; margin-bottom: 30px; }
+.fp-action-btn { 
+    background: rgba(255, 255, 255, 0.1); 
+    border: none; 
+    width: 50px; 
+    height: 50px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: #fff; 
+    cursor: pointer; 
+    font-size: 24px; /* Размер символа */
+    transition: transform 0.2s, background 0.2s;
+}
+.fp-action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
 .fp-action-btn.active { color: #1ed760; }
+/* ------------------------------------------- */
 
 /* Ползунок */
-.progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
+.progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
 .time-text { font-size: 12px; color: #aaa; min-width: 35px; text-align: center; }
 input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
@@ -108,9 +125,10 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   <div class="fp-title" id="fp-title"></div>
   <div class="fp-artist" id="fp-artist"></div>
   
+  <!-- Обновленные кнопки (используем символы ♡ и ⬇) -->
   <div class="fp-actions">
-    <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()">+</button>
-    <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()">DL</button>
+    <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()">♡</button>
+    <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()">⬇</button>
   </div>
 
   <div class="progress-container">
@@ -242,13 +260,18 @@ function toggleFav(containerId, index, btn) {
   else if(containerId === 'list-downloads') track = downloads[index];
   
   var idx = -1; for(var i=0; i<favs.length; i++) { if(favs[i].id === track.id) idx = i; }
-  if(idx !== -1) { favs.splice(idx, 1); btn.innerText = '+'; btn.className = 'action-btn'; }
-  else { favs.push(track); btn.innerText = '❤'; btn.className = 'action-btn active'; }
+  if(idx !== -1) { 
+      favs.splice(idx, 1); 
+      if (btn) { btn.innerText = '+'; btn.className = 'action-btn'; }
+  } else { 
+      favs.push(track); 
+      if (btn) { btn.innerText = '❤'; btn.className = 'action-btn active'; }
+  }
   localStorage.setItem('favs', JSON.stringify(favs));
   
   if(currentIndex !== -1 && queue[currentIndex].id === track.id) {
     var isF = idx === -1;
-    document.getElementById('fp-fav').innerText = isF ? '❤' : '+';
+    document.getElementById('fp-fav').innerText = isF ? '♥' : '♡'; // Красивое сердечко
     document.getElementById('fp-fav').className = 'fp-action-btn ' + (isF?'active':'');
   }
 }
@@ -259,7 +282,7 @@ function downloadTrack(containerId, index, btn) {
   else if(containerId === 'list-favs') track = favs[index];
   else if(containerId === 'list-downloads') track = downloads[index];
   
-  btn.innerText = '...';
+  if(btn) btn.innerText = '...';
   var xhr = new XMLHttpRequest();
   xhr.open('POST', '/download', true);
   xhr.setRequestHeader('Content-Type', 'application/json');
@@ -274,12 +297,14 @@ function downloadTrack(containerId, index, btn) {
           if(idx !== -1) downloads.splice(idx, 1);
           downloads.push(track);
           localStorage.setItem('downloads', JSON.stringify(downloads));
-          btn.innerText = 'OK';
+          
+          if (btn) btn.innerText = 'OK';
+          
           if(currentIndex !== -1 && queue[currentIndex].id === track.id) {
-            document.getElementById('fp-dl').innerText = 'OK';
+            document.getElementById('fp-dl').innerText = '✓'; // Красивая галочка
           }
-        } catch(e) { alert(e.message); btn.innerText = 'DL'; }
-      } else { alert('Ошибка сети'); btn.innerText = 'DL'; }
+        } catch(e) { alert(e.message); if (btn) btn.innerText = 'DL'; }
+      } else { alert('Ошибка сети'); if (btn) btn.innerText = 'DL'; }
     }
   };
   xhr.send(JSON.stringify({id: track.id, url: track.url}));
@@ -300,11 +325,11 @@ function playTrack(index) {
   document.getElementById('fp-artist').innerText = 'Загрузка...';
   
   var isF = false; for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) isF = true; }
-  document.getElementById('fp-fav').innerText = isF ? '❤' : '+';
+  document.getElementById('fp-fav').innerText = isF ? '♥' : '♡'; // Красивое сердечко
   document.getElementById('fp-fav').className = 'fp-action-btn ' + (isF?'active':'');
   
   var isD = false; for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) isD = true; }
-  document.getElementById('fp-dl').innerText = isD ? 'OK' : 'DL';
+  document.getElementById('fp-dl').innerText = isD ? '✓' : '⬇'; // Красивая стрелочка
 
   audio.pause();
   var downloaded = null;
