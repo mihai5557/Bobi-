@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#121212">
+<link rel="manifest" href="/manifest.json">
+
+<!-- Теги для установки на iPhone (iOS) -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bobify">
+<link rel="apple-touch-icon" href="/icon.png">
+
 <title>Bobify</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -13,7 +21,7 @@ input { -webkit-user-select: text; user-select: text; }
 /* Шапка */
 .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #1ed760; text-transform: uppercase; }
-.download-app-btn { background: #1ed760; color: #000; text-decoration: none; padding: 8px 14px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+.download-app-btn { background: #1ed760; color: #000; text-decoration: none; padding: 8px 14px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; border: none; }
 
 /* Поиск */
 .header { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
@@ -51,30 +59,11 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .icon-play { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 10px solid #000; display: inline-block; margin-left: 2px; }
 .icon-pause { width: 8px; height: 12px; border-left: 3px solid #000; border-right: 3px solid #000; display: inline-block; }
 
-/* Большой плеер (скрыт по умолчанию) */
+/* Большой плеер */
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 20px; }
 .fp-header { display: flex; margin-bottom: 20px; }
-
-/* БОЛЬШАЯ КНОПКА НАЗАД */
-.back-btn { 
-    background: rgba(0,0,0,0.7); 
-    color: white; 
-    border: none; 
-    width: 56px; 
-    height: 56px; 
-    border-radius: 50%; 
-    font-size: 36px; 
-    font-weight: bold; 
-    cursor: pointer; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    padding-bottom: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-}
-.back-btn:active { transform: scale(0.95); }
-
-.fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.back-btn { background: rgba(0,0,0,0.7); color: white; border: none; width: 56px; height: 56px; border-radius: 50%; font-size: 36px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; padding-bottom: 10px; }
+.fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; }
 .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .fp-artist { font-size: 16px; color: #aaa; margin-bottom: 25px; text-align: center; }
 
@@ -93,7 +82,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 /* Управление */
 .controls { display: flex; justify-content: center; align-items: center; gap: 30px; }
 .ctrl-btn { background: none; border: none; color: white; cursor: pointer; font-size: 32px; font-weight: bold; padding: 10px;}
-.main-play-btn { background: #1ed760; color: black; border: none; width: 72px; height: 72px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(30, 215, 96, 0.3);}
+.main-play-btn { background: #1ed760; color: black; border: none; width: 72px; height: 72px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
 .main-play-btn .icon-play { border-top-width: 10px; border-bottom-width: 10px; border-left-width: 16px; margin-left: 4px; }
 .main-play-btn .icon-pause { width: 14px; height: 20px; border-left-width: 5px; border-right-width: 5px; }
 </style>
@@ -102,7 +91,8 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 <div class="top-bar">
   <div class="logo">BOBIFY</div>
-  <a href="https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk" class="download-app-btn">Скачать</a>
+  <!-- Кнопка умная: вызывает функцию handleDownload() -->
+  <button class="download-app-btn" onclick="handleDownload()">Скачать</button>
 </div>
 
 <div class="header" id="search-header">
@@ -150,6 +140,21 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio"></audio>
 
 <script>
+// УМНАЯ КНОПКА СКАЧИВАНИЯ
+function handleDownload() {
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+        alert("Чтобы установить Bobify на iPhone:\n\n1. Нажмите кнопку 'Поделиться' (квадрат со стрелкой вверх) в Safari.\n2. Пролистайте вниз и выберите 'На экран Домой'.\n3. Нажмите 'Добавить'.\n\nПриложение появится на рабочем столе!");
+    } else {
+        window.location.href = "https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk";
+    }
+}
+
+// Безопасная регистрация Service Worker для PWA
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(function() {});
+}
+
 var queue = [], currentIndex = -1;
 var favs = [], downloads = [];
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
@@ -374,13 +379,4 @@ function playTrack(index) {
 
 function playNext() { if(queue && queue.length > 0) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
 function playPrev() { if(queue && queue.length > 0) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
-function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
-function toggleFavCurrent() { if(currentIndex !== -1) toggleFav('list-search', currentIndex, document.getElementById('fp-fav')); }
-function downloadCurrent() { if(currentIndex !== -1) downloadTrack('list-search', currentIndex, document.getElementById('fp-dl')); }
-function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
-function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
-
-switchTab('search');
-</script>
-</body>
-</html>
+function togglePlay() { if(!audio.src) return; if(audio.paused)
