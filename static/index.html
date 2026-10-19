@@ -4,11 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#121212">
-<link rel="manifest" href="/manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Bobify">
-<link rel="apple-touch-icon" href="/icon.png">
 <title>Bobify</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -17,10 +12,10 @@ body { background: #121212; color: #fff; font-family: system-ui, sans-serif; pad
 .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #1ed760; text-transform: uppercase; }
 .download-app-btn {
-  background: #1ed760; color: #000; text-decoration: none; border: none;
+  background: #1ed760; color: #000; text-decoration: none;
   padding: 8px 14px; border-radius: 20px; font-weight: bold;
   font-size: 14px; display: flex; align-items: center; gap: 6px;
-  box-shadow: 0 4px 10px rgba(30, 215, 96, 0.3); cursor: pointer;
+  box-shadow: 0 4px 10px rgba(30, 215, 96, 0.3);
 }
 .download-app-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
@@ -76,11 +71,10 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 <div class="top-bar">
   <div class="logo">BOBIFY</div>
-  <!-- Логика скачивания теперь прямо в onclick -->
-  <button class="download-app-btn" onclick="handleDownload()">
+  <a href="https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk" class="download-app-btn">
     <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
     Скачать
-  </button>
+  </a>
 </div>
 
 <div class="header" id="search-header">
@@ -152,17 +146,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio" ontimeupdate="updateProgress()" onended="playNext()"></audio>
 
 <script>
-// Логика кнопки скачивания
-function handleDownload() {
-    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-    if (isIOS) {
-        alert("Чтобы установить приложение на iPhone:\n\n1. Нажмите кнопку 'Поделиться' (квадрат со стрелкой вверх) в Safari.\n2. Выберите 'На экран Домой'.\n3. Нажмите 'Добавить'.\n\nПриложение появится на рабочем столе!");
-    } else {
-        window.location.href = "https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk";
-    }
-}
-
-// --- ДАЛЬШЕ ИДЕТ ЛОГИКА ПЛЕЕРА (БЕЗ ИЗМЕНЕНИЙ) ---
 var queue = [], currentIndex = -1;
 var favs = [], downloads = [];
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
@@ -359,4 +342,12 @@ function playTrack(index) {
   }
 }
 
-f
+function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
+function toggleFavCurrent() { if(currentIndex !== -1) toggleFavById(queue[currentIndex].id, document.getElementById('fp-fav')); }
+function downloadCurrent() { if(currentIndex !== -1) downloadById(queue[currentIndex].id, document.getElementById('fp-dl')); }
+function playNext() { if(queue.length) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
+function playPrev() { if(queue.length) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
+function openFullPlayer() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; }
+function closeFullPlayer() { document.getElementById('full-player').style.display = 'none'; }
+function updateProgress() {
+  if(!audio.duration || audio.duration
