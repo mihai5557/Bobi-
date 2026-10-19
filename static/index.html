@@ -7,15 +7,22 @@
 <title>Bobify</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { background: #121212; color: #fff; font-family: system-ui, sans-serif; padding: 15px; padding-bottom: 160px; }
+body { background: #121212; color: #fff; font-family: system-ui, -apple-system, sans-serif; padding: 15px; padding-bottom: 160px; }
+input { -webkit-user-select: text; user-select: text; }
+
+/* Шапка */
 .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #1ed760; text-transform: uppercase; }
 .download-app-btn { background: #1ed760; color: #000; text-decoration: none; padding: 8px 14px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+
+/* Поиск */
 .header { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
 input { padding: 14px 18px; border-radius: 30px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
 #btn-search { background: #1ed760; border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .search-icon { width: 16px; height: 16px; border: 3px solid #000; border-radius: 50%; position: relative; }
 .search-icon::after { content: ''; position: absolute; top: 12px; left: 10px; width: 3px; height: 10px; background: #000; transform: rotate(-45deg); }
+
+/* Списки */
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 .track { display: flex; align-items: center; gap: 12px; padding: 12px 5px; border-radius: 8px; border-bottom: 1px solid #282828; cursor: pointer; }
 .track:active { background: #282828; }
@@ -23,62 +30,90 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .track-info { flex: 1; min-width: 0; }
 .t-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-artist { font-size: 13px; color: #aaa; }
-.action-btn { background: none; border: none; padding: 8px; color: #aaa; cursor: pointer; font-size: 14px; font-weight: bold; }
-.action-btn.active { color: #1ed760; }
-.navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #282828; z-index: 50; }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 12px; cursor: pointer; font-weight: bold;}
+
+/* Кнопки в списке */
+.action-btn { 
+    background: none; border: none; padding: 8px; 
+    color: #aaa; cursor: pointer; font-size: 22px; 
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; /* Фиксированный размер для ровности */
+}
+.action-btn.active { color: #1ed760; } /* Зеленый цвет для активных */
+
+/* Нижнее меню */
+.navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 15px 0 calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid #282828; z-index: 50; }
+.nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 12px; cursor: pointer; gap: 4px; font-weight: bold; letter-spacing: 0.5px;}
 .nav-item.active { color: #fff; }
-#mini-player { display: none; position: fixed; bottom: 75px; left: 8px; right: 8px; background: #181818; padding: 10px 15px; align-items: center; gap: 12px; border-radius: 8px; z-index: 40; cursor: pointer;}
+
+/* Мини-плеер */
+#mini-player { display: none; position: fixed; bottom: 75px; left: 8px; right: 8px; background: #181818; padding: 10px 15px; align-items: center; gap: 12px; border-radius: 8px; z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer;}
 #mini-player img { width: 40px; height: 40px; border-radius: 4px; }
 .m-info { flex: 1; min-width: 0; }
 .m-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+.play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* Иконки Play/Pause на CSS */
 .icon-play { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 10px solid #000; display: inline-block; margin-left: 2px; }
 .icon-pause { width: 8px; height: 12px; border-left: 3px solid #000; border-right: 3px solid #000; display: inline-block; }
+
+/* Большой плеер */
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 40px; }
 .fp-header { display: flex; margin-bottom: 20px; }
-.back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 28px; cursor: pointer; }
-.fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; }
+.back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 28px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; padding-bottom: 8px; }
+.fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .fp-artist { font-size: 16px; color: #aaa; margin-bottom: 25px; text-align: center; }
+
+/* Кнопки избранного и скачивания в плеере */
 .fp-actions { display: flex; justify-content: center; gap: 25px; margin-bottom: 30px; }
-.fp-action-btn { background: rgba(255,255,255,0.1); border: none; width: 50px; height: 50px; border-radius: 50%; color: #fff; cursor: pointer; font-size: 24px; }
+.fp-action-btn { background: rgba(255, 255, 255, 0.1); border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; font-size: 24px; transition: transform 0.2s, background 0.2s;}
+.fp-action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
 .fp-action-btn.active { color: #1ed760; }
+
+/* Ползунок */
 .progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
 .time-text { font-size: 12px; color: #aaa; min-width: 35px; text-align: center; }
 input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #4d4d4d; border-radius: 2px; }
+
+/* Управление */
 .controls { display: flex; justify-content: center; align-items: center; gap: 30px; }
-.ctrl-btn { background: none; border: none; color: white; font-size: 32px; cursor: pointer; }
-.main-play-btn { background: #1ed760; color: black; border: none; width: 72px; height: 72px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer;}
-.main-play-btn .icon-play { border-top-width: 10px; border-bottom-width: 10px; border-left-width: 16px; }
+.ctrl-btn { background: none; border: none; color: white; cursor: pointer; font-size: 32px; font-weight: bold; padding: 10px;}
+.main-play-btn { background: #1ed760; color: black; border: none; width: 72px; height: 72px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(30, 215, 96, 0.3);}
+.main-play-btn .icon-play { border-top-width: 10px; border-bottom-width: 10px; border-left-width: 16px; margin-left: 4px; }
 .main-play-btn .icon-pause { width: 14px; height: 20px; border-left-width: 5px; border-right-width: 5px; }
 </style>
 </head>
 <body>
+
 <div class="top-bar">
   <div class="logo">BOBIFY</div>
   <a href="https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk" class="download-app-btn">Скачать</a>
 </div>
+
 <div class="header" id="search-header">
   <input id="q" placeholder="Что послушаем?">
   <button id="btn-search" onclick="doSearch()"><div class="search-icon"></div></button>
 </div>
+
 <div id="view-search"><div id="list-search"></div></div>
 <div id="view-favs" style="display:none;"><div id="list-favs"></div></div>
 <div id="view-downloads" style="display:none;"><div id="list-downloads"></div></div>
+
 <div id="mini-player" onclick="document.getElementById('full-player').style.display='flex'">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
   <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()"><span id="mini-play-icon" class="icon-play"></span></button>
 </div>
+
 <div id="full-player">
   <div class="fp-header"><button class="back-btn" onclick="document.getElementById('full-player').style.display='none'">⌄</button></div>
   <img id="fp-thumb" class="fp-cover" src="">
   <div class="fp-title" id="fp-title"></div>
   <div class="fp-artist" id="fp-artist"></div>
   <div class="fp-actions">
+    <!-- Используем красивые символы -->
     <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()">♡</button>
     <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()">⬇</button>
   </div>
@@ -93,19 +128,25 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
     <button class="ctrl-btn" onclick="playNext()">⏭</button>
   </div>
 </div>
+
 <div class="navbar">
   <div class="nav-item active" id="tab-search" onclick="switchTab('search')">ГЛАВНАЯ</div>
   <div class="nav-item" id="tab-favs" onclick="switchTab('favs')">ИЗБРАННОЕ</div>
   <div class="nav-item" id="tab-downloads" onclick="switchTab('downloads')">СКАЧАННЫЕ</div>
 </div>
+
 <audio id="audio"></audio>
+
 <script>
 var queue = [], currentIndex = -1;
 var favs = [], downloads = [];
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
+
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
+
 var audio = document.getElementById('audio');
+
 audio.addEventListener('ended', function() { playNext(); });
 audio.addEventListener('play', function() {
     document.getElementById('main-play-icon').className = 'icon-pause';
@@ -121,14 +162,17 @@ audio.addEventListener('timeupdate', function() {
   document.getElementById('time-current').innerText = fmt(audio.currentTime);
   document.getElementById('time-total').innerText = fmt(audio.duration);
 });
+
 function switchTab(tab) {
   document.getElementById('tab-search').className = 'nav-item';
   document.getElementById('tab-favs').className = 'nav-item';
   document.getElementById('tab-downloads').className = 'nav-item';
   document.getElementById('tab-' + tab).className = 'nav-item active';
+  
   document.getElementById('view-search').style.display = 'none';
   document.getElementById('view-favs').style.display = 'none';
   document.getElementById('view-downloads').style.display = 'none';
+  
   if(tab === 'search') {
     document.getElementById('search-header').style.display = 'flex';
     document.getElementById('view-search').style.display = 'block';
@@ -139,29 +183,39 @@ function switchTab(tab) {
     if(tab === 'downloads') renderList('list-downloads', downloads, 'Скачанные');
   }
 }
+
 function renderList(containerId, data, title) {
   var container = document.getElementById(containerId);
   if(data.length === 0) { container.innerHTML = '<p style="text-align:center; color:#aaa; margin-top:20px;">Пусто</p>'; return; }
+  
   var html = '';
   for(var i=0; i<data.length; i++) {
     var t = data[i];
     var isFav = false; for(var j=0; j<favs.length; j++) { if(favs[j].id === t.id) isFav = true; }
     var isDl = false; for(var k=0; k<downloads.length; k++) { if(downloads[k].id === t.id) isDl = true; }
+    
     var safeTitle = (t.title||'').replace(/[&<>'"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c] || c; });
     var safeArtist = (t.artist||'').replace(/[&<>'"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c] || c; });
+    
+    // Красивые символы вместо текста
+    var heartIcon = isFav ? '❤' : '♡';
+    var dlIcon = isDl ? '✓' : '⬇';
+
     html += '<div class="track" onclick="playTrackFromList(\'' + containerId + '\', ' + i + ')">' +
             '<img src="' + (t.thumb || defaultImg) + '">' +
             '<div class="track-info"><div class="t-title">' + safeTitle + '</div><div class="t-artist">' + safeArtist + '</div></div>' +
-            '<button class="action-btn ' + (isFav?'active':'') + '" onclick="event.stopPropagation(); toggleFav(\'' + containerId + '\', ' + i + ', this)">' + (isFav?'❤':'+') + '</button>' +
-            '<button class="action-btn" onclick="event.stopPropagation(); downloadTrack(\'' + containerId + '\', ' + i + ', this)">' + (isDl?'OK':'DL') + '</button>' +
+            '<button class="action-btn ' + (isFav?'active':'') + '" onclick="event.stopPropagation(); toggleFav(\'' + containerId + '\', ' + i + ', this)">' + heartIcon + '</button>' +
+            '<button class="action-btn" style="' + (isDl?'color:#1ed760':'') + '" onclick="event.stopPropagation(); downloadTrack(\'' + containerId + '\', ' + i + ', this)">' + dlIcon + '</button>' +
             '</div>';
   }
   container.innerHTML = html;
 }
+
 function doSearch() {
   var q = document.getElementById('q').value; if(!q) return;
   switchTab('search');
   document.getElementById('list-search').innerHTML = '<p style="text-align:center; padding:20px;">Поиск...</p>';
+  
   var xhr = new XMLHttpRequest();
   xhr.open('GET', '/search?q=' + encodeURIComponent(q), true);
   xhr.onreadystatechange = function() {
@@ -178,36 +232,44 @@ function doSearch() {
   };
   xhr.send();
 }
+
 function playTrackFromList(containerId, index) {
   if(containerId === 'list-search') queue = queue;
   else if(containerId === 'list-favs') queue = favs;
   else if(containerId === 'list-downloads') queue = downloads;
   playTrack(index);
 }
+
 function toggleFav(containerId, index, btn) {
   var track;
   if(containerId === 'list-search') track = queue[index];
   else if(containerId === 'list-favs') track = favs[index];
   else if(containerId === 'list-downloads') track = downloads[index];
+  
   var idx = -1; for(var i=0; i<favs.length; i++) { if(favs[i].id === track.id) idx = i; }
-  if(idx !== -1) { favs.splice(idx, 1); if (btn) { btn.innerText = '+'; btn.className = 'action-btn'; } }
-  else { favs.push(track); if (btn) { btn.innerText = '❤'; btn.className = 'action-btn active'; } }
+  if(idx !== -1) { 
+      favs.splice(idx, 1); 
+      if (btn) { btn.innerText = '♡'; btn.className = 'action-btn'; }
+  } else { 
+      favs.push(track); 
+      if (btn) { btn.innerText = '❤'; btn.className = 'action-btn active'; }
+  }
   localStorage.setItem('favs', JSON.stringify(favs));
+  
   if(currentIndex !== -1 && queue[currentIndex].id === track.id) {
     var isF = idx === -1;
-    document.getElementById('fp-fav').innerText = isF ? '♥' : '♡';
+    document.getElementById('fp-fav').innerText = isF ? '❤' : '♡';
     document.getElementById('fp-fav').className = 'fp-action-btn ' + (isF?'active':'');
   }
 }
 
-// ============ СКАЧИВАНИЕ ============
 function downloadTrack(containerId, index, btn) {
   var track;
   if(containerId === 'list-search') track = queue[index];
   else if(containerId === 'list-favs') track = favs[index];
   else if(containerId === 'list-downloads') track = downloads[index];
   
-  if(btn) btn.innerText = '...';
+  if(btn) btn.innerText = '⏳';
   var xhr = new XMLHttpRequest();
   xhr.open('POST', '/download', true);
   xhr.setRequestHeader('Content-Type', 'application/json');
@@ -222,7 +284,9 @@ function downloadTrack(containerId, index, btn) {
           if(idx !== -1) downloads.splice(idx, 1);
           downloads.push(track);
           localStorage.setItem('downloads', JSON.stringify(downloads));
-          if (btn) btn.innerText = 'OK';
+          
+          if (btn) { btn.innerText = '✓'; btn.style.color = '#1ed760'; }
+          
           if(currentIndex !== -1 && queue[currentIndex].id === track.id) {
             document.getElementById('fp-dl').innerText = '✓';
           }
@@ -230,8 +294,8 @@ function downloadTrack(containerId, index, btn) {
           // ЗАПУСКАЕМ РЕАЛЬНОЕ СКАЧИВАНИЕ НА ТЕЛЕФОН
           triggerFileDownload(track.file, track.title);
           
-        } catch(e) { alert(e.message); if (btn) btn.innerText = 'DL'; }
-      } else { alert('Ошибка сети'); if (btn) btn.innerText = 'DL'; }
+        } catch(e) { alert(e.message); if (btn) btn.innerText = '⬇'; }
+      } else { alert('Ошибка сети'); if (btn) btn.innerText = '⬇'; }
     }
   };
   xhr.send(JSON.stringify({id: track.id, url: track.url}));
@@ -250,8 +314,10 @@ function triggerFileDownload(filename, title) {
 
 function playTrack(index) {
   if(!queue || index < 0 || index >= queue.length) return;
+  
   currentIndex = index;
   var t = queue[index];
+  
   document.getElementById('full-player').style.display = 'flex';
   document.getElementById('mini-player').style.display = 'flex';
   document.getElementById('fp-thumb').src = t.thumb || defaultImg;
@@ -259,16 +325,20 @@ function playTrack(index) {
   document.getElementById('fp-title').innerText = t.title;
   document.getElementById('mini-title').innerText = t.title;
   document.getElementById('fp-artist').innerText = 'Загрузка...';
+  
   var isF = false; for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) isF = true; }
-  document.getElementById('fp-fav').innerText = isF ? '♥' : '♡';
+  document.getElementById('fp-fav').innerText = isF ? '❤' : '♡';
   document.getElementById('fp-fav').className = 'fp-action-btn ' + (isF?'active':'');
+  
   var isD = false; for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) isD = true; }
   document.getElementById('fp-dl').innerText = isD ? '✓' : '⬇';
+
   audio.pause();
   var downloaded = null;
   for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) downloaded = downloads[i]; }
+
   if (downloaded) {
-    audio.src = '/play/' + downloaded.file;
+    audio.src = '/play/' + downloaded.file; 
     audio.load(); audio.play();
     document.getElementById('fp-artist').innerText = t.artist;
   } else {
@@ -280,7 +350,7 @@ function playTrack(index) {
           try {
             var d = JSON.parse(xhr.responseText);
             if(d.stream_url) {
-              audio.src = d.stream_url;
+              audio.src = d.stream_url; 
               audio.load(); audio.play();
               document.getElementById('fp-artist').innerText = t.artist;
             } else throw new Error('Нет потока');
@@ -291,6 +361,7 @@ function playTrack(index) {
     xhr.send();
   }
 }
+
 function playNext() { if(queue && queue.length > 0) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
 function playPrev() { if(queue && queue.length > 0) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
 function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
@@ -298,7 +369,7 @@ function toggleFavCurrent() { if(currentIndex !== -1) toggleFav('list-search', c
 function downloadCurrent() { if(currentIndex !== -1) downloadTrack('list-search', currentIndex, document.getElementById('fp-dl')); }
 function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
 function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
 switchTab('search');
 </script>
-</body>
-</html>
+<
