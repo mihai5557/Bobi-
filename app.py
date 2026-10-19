@@ -19,24 +19,17 @@ def index():
 def search():
     q = request.args.get('q', '').strip()
     if not q: return jsonify([])
-
     if q in search_cache and time.time() - search_cache[q]['time'] < CACHE_TIME:
         return jsonify(search_cache[q]['data'])
-
     opts = {'quiet': True, 'extract_flat': True, 'playlistend': 15, 'socket_timeout': 5}
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(f'scsearch15:{q}', download=False)
-        
         res = []
         for e in info.get('entries', []):
             if not e: continue
             thumb = e['thumbnails'][-1]['url'] if e.get('thumbnails') else ''
-            res.append({
-                'id': str(e['id']), 'title': e['title'], 'url': e['url'], 
-                'thumb': thumb, 'artist': e.get('uploader', 'SoundCloud')
-            })
-        
+            res.append({'id': str(e['id']), 'title': e['title'], 'url': e['url'], 'thumb': thumb, 'artist': e.get('uploader', 'SoundCloud')})
         search_cache[q] = {'time': time.time(), 'data': res}
         return jsonify(res)
     except Exception as ex: return jsonify({'error': str(ex)})
@@ -61,7 +54,6 @@ def download():
     vid = str(d['id'])
     for f in os.listdir(MUSIC_DIR):
         if f.startswith(vid + '.'): return jsonify({'file': f})
-            
     opts = {'format': 'bestaudio[ext=m4a]/bestaudio', 'outtmpl': str(MUSIC_DIR / f'{vid}.%(ext)s'), 'quiet': True, 'noplaylist': True}
     try:
         with yt_dlp.YoutubeDL(opts) as ydl: ydl.download([d['url']])
