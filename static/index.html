@@ -32,13 +32,8 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .t-artist { font-size: 13px; color: #aaa; }
 
 /* Кнопки в списке */
-.action-btn { 
-    background: none; border: none; padding: 8px; 
-    color: #aaa; cursor: pointer; font-size: 22px; 
-    display: flex; align-items: center; justify-content: center;
-    width: 40px; height: 40px; /* Фиксированный размер для ровности */
-}
-.action-btn.active { color: #1ed760; } /* Зеленый цвет для активных */
+.action-btn { background: none; border: none; padding: 8px; color: #aaa; cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+.action-btn.active { color: #1ed760; }
 
 /* Нижнее меню */
 .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 15px 0 calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid #282828; z-index: 50; }
@@ -56,10 +51,29 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .icon-play { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 10px solid #000; display: inline-block; margin-left: 2px; }
 .icon-pause { width: 8px; height: 12px; border-left: 3px solid #000; border-right: 3px solid #000; display: inline-block; }
 
-/* Большой плеер */
-#full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 40px; }
+/* Большой плеер (скрыт по умолчанию) */
+#full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 20px; }
 .fp-header { display: flex; margin-bottom: 20px; }
-.back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 28px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; padding-bottom: 8px; }
+
+/* УВЕЛИЧЕННАЯ КНОПКА НАЗАД */
+.back-btn { 
+    background: rgba(0,0,0,0.7); 
+    color: white; 
+    border: none; 
+    width: 56px; 
+    height: 56px; 
+    border-radius: 50%; 
+    font-size: 36px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    padding-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+.back-btn:active { transform: scale(0.95); }
+
 .fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .fp-artist { font-size: 16px; color: #aaa; margin-bottom: 25px; text-align: center; }
@@ -101,19 +115,18 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <div id="view-favs" style="display:none;"><div id="list-favs"></div></div>
 <div id="view-downloads" style="display:none;"><div id="list-downloads"></div></div>
 
-<div id="mini-player" onclick="document.getElementById('full-player').style.display='flex'">
+<div id="mini-player" onclick="openFullPlayer()">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
   <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()"><span id="mini-play-icon" class="icon-play"></span></button>
 </div>
 
 <div id="full-player">
-  <div class="fp-header"><button class="back-btn" onclick="document.getElementById('full-player').style.display='none'">⌄</button></div>
+  <div class="fp-header"><button class="back-btn" onclick="closeFullPlayer()">⌄</button></div>
   <img id="fp-thumb" class="fp-cover" src="">
   <div class="fp-title" id="fp-title"></div>
   <div class="fp-artist" id="fp-artist"></div>
   <div class="fp-actions">
-    <!-- Используем красивые символы -->
     <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()">♡</button>
     <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()">⬇</button>
   </div>
@@ -163,6 +176,29 @@ audio.addEventListener('timeupdate', function() {
   document.getElementById('time-total').innerText = fmt(audio.duration);
 });
 
+// === ЛОГИКА КНОПКИ НАЗАД ===
+function openFullPlayer() {
+    document.getElementById('full-player').style.display = 'flex';
+    if (!window.history.state || !window.history.state.playerOpen) {
+        window.history.pushState({playerOpen: true}, '');
+    }
+}
+
+function closeFullPlayer() {
+    document.getElementById('full-player').style.display = 'none';
+    if (window.history.state && window.history.state.playerOpen) {
+        window.history.back();
+    }
+}
+
+window.addEventListener('popstate', function(event) {
+    var fp = document.getElementById('full-player');
+    if (fp.style.display === 'flex') {
+        fp.style.display = 'none'; 
+    }
+});
+// ==================================
+
 function switchTab(tab) {
   document.getElementById('tab-search').className = 'nav-item';
   document.getElementById('tab-favs').className = 'nav-item';
@@ -197,7 +233,6 @@ function renderList(containerId, data, title) {
     var safeTitle = (t.title||'').replace(/[&<>'"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c] || c; });
     var safeArtist = (t.artist||'').replace(/[&<>'"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c] || c; });
     
-    // Красивые символы вместо текста
     var heartIcon = isFav ? '❤' : '♡';
     var dlIcon = isDl ? '✓' : '⬇';
 
@@ -291,7 +326,6 @@ function downloadTrack(containerId, index, btn) {
             document.getElementById('fp-dl').innerText = '✓';
           }
           
-          // ЗАПУСКАЕМ РЕАЛЬНОЕ СКАЧИВАНИЕ НА ТЕЛЕФОН
           triggerFileDownload(track.file, track.title);
           
         } catch(e) { alert(e.message); if (btn) btn.innerText = '⬇'; }
@@ -318,8 +352,6 @@ function playTrack(index) {
   currentIndex = index;
   var t = queue[index];
   
-  document.getElementById('full-player').style.display = 'flex';
-  document.getElementById('mini-player').style.display = 'flex';
   document.getElementById('fp-thumb').src = t.thumb || defaultImg;
   document.getElementById('mini-thumb').src = t.thumb || defaultImg;
   document.getElementById('fp-title').innerText = t.title;
@@ -341,6 +373,7 @@ function playTrack(index) {
     audio.src = '/play/' + downloaded.file; 
     audio.load(); audio.play();
     document.getElementById('fp-artist').innerText = t.artist;
+    openFullPlayer();
   } else {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/stream_url?url=' + encodeURIComponent(t.url), true);
@@ -353,6 +386,7 @@ function playTrack(index) {
               audio.src = d.stream_url; 
               audio.load(); audio.play();
               document.getElementById('fp-artist').innerText = t.artist;
+              openFullPlayer();
             } else throw new Error('Нет потока');
           } catch(e) { alert('Ошибка воспроизведения'); }
         } else { alert('Ошибка сети'); }
@@ -365,11 +399,4 @@ function playTrack(index) {
 function playNext() { if(queue && queue.length > 0) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
 function playPrev() { if(queue && queue.length > 0) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
 function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
-function toggleFavCurrent() { if(currentIndex !== -1) toggleFav('list-search', currentIndex, document.getElementById('fp-fav')); }
-function downloadCurrent() { if(currentIndex !== -1) downloadTrack('list-search', currentIndex, document.getElementById('fp-dl')); }
-function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
-function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
-
-switchTab('search');
-</script>
-<
+function toggleFavCurrent() { if
