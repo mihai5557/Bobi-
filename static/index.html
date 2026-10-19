@@ -55,7 +55,7 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 20px; }
 .fp-header { display: flex; margin-bottom: 20px; }
 
-/* УВЕЛИЧЕННАЯ КНОПКА НАЗАД */
+/* БОЛЬШАЯ КНОПКА НАЗАД */
 .back-btn { 
     background: rgba(0,0,0,0.7); 
     color: white; 
@@ -78,17 +78,16 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .fp-artist { font-size: 16px; color: #aaa; margin-bottom: 25px; text-align: center; }
 
-/* Кнопки избранного и скачивания в плеере */
+/* Кнопки избранного и скачивания */
 .fp-actions { display: flex; justify-content: center; gap: 25px; margin-bottom: 30px; }
-.fp-action-btn { background: rgba(255, 255, 255, 0.1); border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; font-size: 24px; transition: transform 0.2s, background 0.2s;}
-.fp-action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
+.fp-action-btn { background: rgba(255, 255, 255, 0.1); border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; font-size: 24px; }
 .fp-action-btn.active { color: #1ed760; }
 
 /* Ползунок */
 .progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
 .time-text { font-size: 12px; color: #aaa; min-width: 35px; text-align: center; }
 input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #4d4d4d; border-radius: 2px; }
 
 /* Управление */
@@ -115,14 +114,14 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <div id="view-favs" style="display:none;"><div id="list-favs"></div></div>
 <div id="view-downloads" style="display:none;"><div id="list-downloads"></div></div>
 
-<div id="mini-player" onclick="openFullPlayer()">
+<div id="mini-player" onclick="document.getElementById('full-player').style.display='flex'">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
   <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()"><span id="mini-play-icon" class="icon-play"></span></button>
 </div>
 
 <div id="full-player">
-  <div class="fp-header"><button class="back-btn" onclick="closeFullPlayer()">⌄</button></div>
+  <div class="fp-header"><button class="back-btn" onclick="document.getElementById('full-player').style.display='none'">⌄</button></div>
   <img id="fp-thumb" class="fp-cover" src="">
   <div class="fp-title" id="fp-title"></div>
   <div class="fp-artist" id="fp-artist"></div>
@@ -175,29 +174,6 @@ audio.addEventListener('timeupdate', function() {
   document.getElementById('time-current').innerText = fmt(audio.currentTime);
   document.getElementById('time-total').innerText = fmt(audio.duration);
 });
-
-// === ЛОГИКА КНОПКИ НАЗАД ===
-function openFullPlayer() {
-    document.getElementById('full-player').style.display = 'flex';
-    if (!window.history.state || !window.history.state.playerOpen) {
-        window.history.pushState({playerOpen: true}, '');
-    }
-}
-
-function closeFullPlayer() {
-    document.getElementById('full-player').style.display = 'none';
-    if (window.history.state && window.history.state.playerOpen) {
-        window.history.back();
-    }
-}
-
-window.addEventListener('popstate', function(event) {
-    var fp = document.getElementById('full-player');
-    if (fp.style.display === 'flex') {
-        fp.style.display = 'none'; 
-    }
-});
-// ==================================
 
 function switchTab(tab) {
   document.getElementById('tab-search').className = 'nav-item';
@@ -373,7 +349,7 @@ function playTrack(index) {
     audio.src = '/play/' + downloaded.file; 
     audio.load(); audio.play();
     document.getElementById('fp-artist').innerText = t.artist;
-    openFullPlayer();
+    document.getElementById('full-player').style.display = 'flex';
   } else {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/stream_url?url=' + encodeURIComponent(t.url), true);
@@ -386,7 +362,7 @@ function playTrack(index) {
               audio.src = d.stream_url; 
               audio.load(); audio.play();
               document.getElementById('fp-artist').innerText = t.artist;
-              openFullPlayer();
+              document.getElementById('full-player').style.display = 'flex';
             } else throw new Error('Нет потока');
           } catch(e) { alert('Ошибка воспроизведения'); }
         } else { alert('Ошибка сети'); }
@@ -399,4 +375,12 @@ function playTrack(index) {
 function playNext() { if(queue && queue.length > 0) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
 function playPrev() { if(queue && queue.length > 0) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
 function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
-function toggleFavCurrent() { if
+function toggleFavCurrent() { if(currentIndex !== -1) toggleFav('list-search', currentIndex, document.getElementById('fp-fav')); }
+function downloadCurrent() { if(currentIndex !== -1) downloadTrack('list-search', currentIndex, document.getElementById('fp-dl')); }
+function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
+function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+switchTab('search');
+</script>
+</body>
+</html>
