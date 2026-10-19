@@ -11,7 +11,6 @@ body { background: #121212; color: #fff; font-family: system-ui, sans-serif; pad
 input { padding: 12px; border-radius: 20px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
 .btn-search { padding: 12px 20px; border-radius: 20px; border: none; background: #1ed760; font-weight: bold; color: #000; cursor: pointer;}
 
-/* Главная */
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 .genres-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
 .genre-card { padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; height: 80px; display: flex; align-items: flex-start; }
@@ -23,7 +22,6 @@ input { padding: 12px; border-radius: 20px; border: none; background: #242424; c
 .h-card .t-title { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .h-card .t-artist { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
 
-/* Треки */
 .track { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; }
 .track:active { background: #282828; }
 .track img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #333; }
@@ -33,20 +31,17 @@ input { padding: 12px; border-radius: 20px; border: none; background: #242424; c
 .action-btn { background: none; border: none; font-size: 22px; padding: 8px; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;}
 .action-btn.active { color: #1ed760; }
 
-/* Меню */
 .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #282828; z-index: 50; }
 .nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 11px; cursor: pointer; gap: 4px; }
 .nav-item.active { color: #fff; }
 .nav-item svg { width: 24px; height: 24px; fill: currentColor; }
 
-/* Мини-плеер */
 #mini-player { display: none; position: fixed; bottom: 60px; left: 8px; right: 8px; background: #181818; padding: 10px 15px; align-items: center; gap: 12px; border-radius: 8px; z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer;}
 #mini-player img { width: 40px; height: 40px; border-radius: 4px; background: #333; }
 .m-info { flex: 1; min-width: 0; }
 .m-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 14px; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center;}
 
-/* Большой плеер */
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 40px; }
 .fp-header { display: flex; margin-bottom: 20px; }
 .back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -131,26 +126,28 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio" ontimeupdate="updateProgress()" onended="playNext()"></audio>
 
 <script>
-// Безопасное чтение памяти (чтобы ничего не зависало)
 function safeParse(key, fallback) {
-    try { let v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } 
-    catch { return fallback; }
+    try { 
+        var v = localStorage.getItem(key); 
+        return v ? JSON.parse(v) : fallback; 
+    } catch (e) { 
+        return fallback; 
+    }
 }
 
-let queue = [], currentIndex = -1;
-let favs = safeParse('favs', []);
-let history = safeParse('history', []);
-let downloads = safeParse('downloads', []);
+var queue = [], currentIndex = -1;
+var favs = safeParse('favs', []);
+var history = safeParse('history', []);
+var downloads = safeParse('downloads', []);
 
-// Сброс старых битых данных, если они не в формате массива
 if (!Array.isArray(favs)) favs = [];
 if (!Array.isArray(history)) history = [];
 if (!Array.isArray(downloads)) downloads = [];
 
-let homeHistory = [], homeRecs = [];
-const defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
+var homeHistory = [], homeRecs = [];
+var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
-const genres = [
+var genres = [
   { name: 'Рэп', color: '#ba5d07', query: 'rap hits' },
   { name: 'Поп', color: '#8d67ab', query: 'pop music' },
   { name: 'Фонк', color: '#148a08', query: 'phonk' },
@@ -162,8 +159,8 @@ const genres = [
 ];
 
 function switchTab(tab) {
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  let tabEl = document.getElementById('tab-' + tab);
+  document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+  var tabEl = document.getElementById('tab-' + tab);
   if(tabEl) tabEl.classList.add('active');
   
   document.getElementById('view-home').style.display = 'none';
@@ -181,10 +178,9 @@ function switchTab(tab) {
   }
 }
 
-// === ГЛАВНАЯ ===
 function renderHome() {
-  let html = `<div class="section-title">Жанры и настроения</div><div class="genres-grid">`;
-  genres.forEach(g => {
+  var html = `<div class="section-title">Жанры и настроения</div><div class="genres-grid">`;
+  genres.forEach(function(g) {
     html += `<div class="genre-card" style="background:${g.color}" onclick="searchByGenre('${g.query}')">${g.name}</div>`;
   });
   html += `</div>`;
@@ -192,7 +188,7 @@ function renderHome() {
   if (history.length > 0) {
     homeHistory = history.slice(0, 5);
     html += `<div class="section-title">Недавно прослушано</div><div class="h-scroll">`;
-    homeHistory.forEach((t, i) => {
+    homeHistory.forEach(function(t, i) {
       html += `<div class="h-card" onclick="playFromHome('history', ${i})">
         <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'">
         <div class="t-title">${t.title}</div>
@@ -201,7 +197,7 @@ function renderHome() {
     });
     html += `</div>`;
     
-    let lastArtist = history[0].artist;
+    var lastArtist = history[0] ? history[0].artist : '';
     if (lastArtist && lastArtist !== 'SoundCloud') {
       html += `<div class="section-title">Потому что вы слушали ${lastArtist}</div><div class="h-scroll" id="recommendations"><p style="color:#aaa;padding:10px;">Загрузка...</p></div>`;
     }
@@ -211,23 +207,22 @@ function renderHome() {
   
   document.getElementById('home-content').innerHTML = html;
   
-  if (history.length > 0 && history[0].artist !== 'SoundCloud') {
+  if (history.length > 0 && history[0] && history[0].artist !== 'SoundCloud') {
       loadRecommendations(history[0].artist);
   }
 }
 
-async function loadRecommendations(artist) {
-  try {
-    let r = await fetch('/search?q=' + encodeURIComponent(artist));
-    let data = await r.json();
+function loadRecommendations(artist) {
+  fetch('/search?q=' + encodeURIComponent(artist))
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
     if(data.error) return;
-    
-    homeRecs = data.filter(t => !history.some(h => h.id === t.id)).slice(0, 5);
-    let recDiv = document.getElementById('recommendations');
+    homeRecs = data.filter(function(t) { return !history.some(function(h) { return h.id === t.id; }); }).slice(0, 5);
+    var recDiv = document.getElementById('recommendations');
     
     if(recDiv) {
         if(homeRecs.length === 0) { recDiv.innerHTML = '<p style="color:#aaa;padding:10px;">Пока нет новых рекомендаций</p>'; return; }
-        recDiv.innerHTML = homeRecs.map((t, i) => {
+        recDiv.innerHTML = homeRecs.map(function(t, i) {
           return `<div class="h-card" onclick="playFromHome('recs', ${i})">
             <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'">
             <div class="t-title">${t.title}</div>
@@ -235,7 +230,7 @@ async function loadRecommendations(artist) {
           </div>`;
         }).join('');
     }
-  } catch {}
+  }).catch(function() {});
 }
 
 function playFromHome(type, index) {
@@ -249,19 +244,18 @@ function searchByGenre(query) {
   search();
 }
 
-// === БИБЛИОТЕКА ===
 function renderLibrary(tab) {
-  let data = tab === 'favs' ? favs : downloads;
-  let title = tab === 'favs' ? 'Избранное' : 'Скачанные';
+  var data = tab === 'favs' ? favs : downloads;
+  var title = tab === 'favs' ? 'Избранное' : 'Скачанные';
   
   if (data.length === 0) {
     document.getElementById('list-library').innerHTML = `<h2 style="text-align:center;margin-top:40px;color:#aaa;">Пусто</h2>`;
     return;
   }
 
-  document.getElementById('list-library').innerHTML = `<div class="section-title">${title}</div>` + data.map((t, i) => {
-    let isFav = favs.some(f => f.id === t.id);
-    let isDl = downloads.some(d => d.id === t.id);
+  document.getElementById('list-library').innerHTML = `<div class="section-title">${title}</div>` + data.map(function(t, i) {
+    var isFav = favs.some(function(f) { return f.id === t.id; });
+    var isDl = downloads.some(function(d) { return d.id === t.id; });
     return `<div class="track">
       <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'" onclick="playFromLibrary('${tab}', ${i})">
       <div class="t-info" onclick="playFromLibrary('${tab}', ${i})">
@@ -275,23 +269,22 @@ function renderLibrary(tab) {
 }
 
 function playFromLibrary(tab, index) {
-  let data = tab === 'favs' ? favs : downloads;
+  var data = tab === 'favs' ? favs : downloads;
   queue = data; 
   playTrack(index);
 }
 
-// === ПОИСК ===
-async function search() {
-  let q = document.getElementById('q').value; if(!q) return;
+function search() {
+  var q = document.getElementById('q').value; if(!q) return;
   document.getElementById('list-search').innerHTML = '<p style="text-align:center;padding:20px;">Поиск...</p>';
-  try {
-    let r = await fetch('/search?q=' + encodeURIComponent(q));
-    let data = await r.json();
+  fetch('/search?q=' + encodeURIComponent(q))
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
     if(data.error) { document.getElementById('list-search').innerText = data.error; return; }
     queue = data;
-    document.getElementById('list-search').innerHTML = `<div class="section-title">Результаты</div>` + queue.map((t, i) => {
-      let isFav = favs.some(f => f.id === t.id);
-      let isDl = downloads.some(d => d.id === t.id);
+    document.getElementById('list-search').innerHTML = `<div class="section-title">Результаты</div>` + queue.map(function(t, i) {
+      var isFav = favs.some(function(f) { return f.id === t.id; });
+      var isDl = downloads.some(function(d) { return d.id === t.id; });
       return `<div class="track">
         <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'" onclick="playTrack(${i})">
         <div class="t-info" onclick="playTrack(${i})">
@@ -302,14 +295,13 @@ async function search() {
         <button class="action-btn" onclick="downloadSearch(${i}, this)">${isDl ? getCheckIcon() : getDlIcon()}</button>
       </div>`;
     }).join('');
-  } catch { document.getElementById('list-search').innerText = 'Ошибка сети'; }
+  }).catch(function() { document.getElementById('list-search').innerText = 'Ошибка сети'; });
 }
 
-// === ОБЩАЯ ЛОГИКА ===
 function toggleFavSearch(index, btn) {
-  let t = queue[index];
-  if (favs.some(f => f.id === t.id)) {
-    favs = favs.filter(f => f.id !== t.id);
+  var t = queue[index];
+  if (favs.some(function(f) { return f.id === t.id; })) {
+    favs = favs.filter(function(f) { return f.id !== t.id; });
     btn.classList.remove('active'); btn.innerHTML = getHeartIcon(false);
   } else {
     favs.push(t); btn.classList.add('active'); btn.innerHTML = getHeartIcon(true);
@@ -319,10 +311,10 @@ function toggleFavSearch(index, btn) {
 }
 
 function toggleFavItem(index, tab, btn) {
-  let data = tab === 'favs' ? favs : downloads;
-  let t = data[index];
-  if (favs.some(f => f.id === t.id)) {
-    favs = favs.filter(f => f.id !== t.id);
+  var data = tab === 'favs' ? favs : downloads;
+  var t = data[index];
+  if (favs.some(function(f) { return f.id === t.id; })) {
+    favs = favs.filter(function(f) { return f.id !== t.id; });
     btn.classList.remove('active'); btn.innerHTML = getHeartIcon(false);
     if (tab === 'favs') renderLibrary('favs');
   } else {
@@ -333,31 +325,30 @@ function toggleFavItem(index, tab, btn) {
 
 function downloadSearch(index, btn) { downloadAction(queue[index], btn); }
 function downloadTrackItem(index, tab, btn) {
-  let data = tab === 'favs' ? favs : downloads;
+  var data = tab === 'favs' ? favs : downloads;
   downloadAction(data[index], btn);
 }
 
 function downloadAction(t, btn) {
   btn.innerHTML = '⏳';
   fetch('/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: t.id, url: t.url})})
-  .then(r => r.json())
-  .then(d => {
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
     if(d.error) throw new Error(d.error);
-    let existing = downloads.findIndex(x => x.id === t.id);
+    var existing = downloads.findIndex(function(x) { return x.id === t.id; });
     if (existing !== -1) downloads.splice(existing, 1);
     t.file = d.file;
     downloads.push(t);
     localStorage.setItem('downloads', JSON.stringify(downloads));
     btn.innerHTML = getCheckIcon();
-  }).catch(e => { alert(e.message); btn.innerHTML = getDlIcon(); });
+  }).catch(function(e) { alert(e.message); btn.innerHTML = getDlIcon(); });
 }
 
-// === ПЛЕЕР ===
-async function playTrack(index) {
-  currentIndex = index; let t = queue[index];
-  let imgSrc = t.thumb || defaultImg;
+function playTrack(index) {
+  currentIndex = index; var t = queue[index];
+  var imgSrc = t.thumb || defaultImg;
   
-  history = history.filter(h => h.id !== t.id);
+  history = history.filter(function(h) { return h.id !== t.id; });
   history.unshift(t);
   history = history.slice(0, 20);
   localStorage.setItem('history', JSON.stringify(history));
@@ -371,17 +362,17 @@ async function playTrack(index) {
   document.getElementById('fp-artist').innerText = 'Загрузка...'; 
   
   syncFullPlayerFav();
-  let fpDl = document.getElementById('fp-dl-btn');
-  let downloadedTrack = downloads.find(d => d.id === t.id);
+  var fpDl = document.getElementById('fp-dl-btn');
+  var downloadedTrack = downloads.find(function(d) { return d.id === t.id; });
   fpDl.innerHTML = downloadedTrack ? getCheckIcon() : getDlIcon();
 
-  let audio = document.getElementById('audio'); 
+  var audio = document.getElementById('audio'); 
   audio.pause(); document.getElementById('main-play-btn').innerText = '⏳';
   
   if (downloadedTrack) {
     audio.src = '/play/' + downloadedTrack.file;
     audio.load();
-    audio.play().then(() => { 
+    audio.play().then(function() { 
       document.getElementById('main-play-btn').innerText = '❚❚'; 
       document.getElementById('mini-play-btn').innerText = '❚❚'; 
     });
@@ -389,16 +380,12 @@ async function playTrack(index) {
     return;
   }
 
-  try {
-    let r = await fetch('/stream_url?url=' + encodeURIComponent(t.url));
-    let d = await r.json();
+  fetch('/stream_url?url=' + encodeURIComponent(t.url))
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
     if (d.stream_url) {
        audio.src = d.stream_url;
        audio.load();
-       audio.play().then(() => { 
+       audio.play().then(function() { 
          document.getElementById('main-play-btn').innerText = '❚❚'; 
-         document.getElementById('mini-play-btn').innerText = '❚❚'; 
-       });
-       document.getElementById('fp-artist').innerText = t.artist; 
-    } else { throw new Error('no stream'); }
-  } cat
+         document.getElementById('mini-play-btn').innerT
