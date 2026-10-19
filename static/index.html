@@ -3,16 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Spotify</title>
+<title>Bobify</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background: #121212; color: #fff; font-family: system-ui, sans-serif; padding: 15px; padding-bottom: 150px; }
-.header { display: flex; gap: 10px; margin-bottom: 20px; }
-input { padding: 12px; border-radius: 20px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
-.btn-search { padding: 12px 20px; border-radius: 20px; border: none; background: #1ed760; font-weight: bold; color: #000; cursor: pointer;}
+
+/* Верхняя панель и Логотип */
+.top-bar { display: flex; align-items: center; margin-bottom: 15px; }
+.logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #1ed760; text-transform: uppercase; }
+.header { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
+input { padding: 14px 18px; border-radius: 30px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
+
+/* Кнопка Поиска (Лупа с нотой) */
+#btn-search { 
+  background: #1ed760; border: none; width: 50px; height: 50px; border-radius: 50%; 
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: 0 4px 10px rgba(30, 215, 96, 0.3); transition: transform 0.1s;
+}
+#btn-search:active { transform: scale(0.9); }
 
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 
+/* Треки */
 .track { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; cursor: pointer; border-bottom: 1px solid #282828; }
 .track:active { background: #282828; }
 .track img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #333; pointer-events: none; }
@@ -22,17 +34,21 @@ input { padding: 12px; border-radius: 20px; border: none; background: #242424; c
 .action-btn { background: none; border: none; font-size: 22px; padding: 8px; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;}
 .action-btn.active { color: #1ed760; }
 
-.navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #282828; z-index: 50; }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 11px; cursor: pointer; gap: 4px; padding: 5px 15px;}
+/* Нижнее меню с иконками */
+.navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #282828; z-index: 50; }
+.nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #aaa; font-size: 11px; cursor: pointer; gap: 4px; padding: 5px 20px; transition: color 0.2s;}
 .nav-item.active { color: #fff; }
-.nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+.nav-item svg { width: 26px; height: 26px; fill: currentColor; }
+.nav-text { font-weight: 500; }
 
-#mini-player { display: none; position: fixed; bottom: 60px; left: 8px; right: 8px; background: #181818; padding: 10px 15px; align-items: center; gap: 12px; border-radius: 8px; z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer;}
+/* Мини-плеер */
+#mini-player { display: none; position: fixed; bottom: 70px; left: 8px; right: 8px; background: #181818; padding: 10px 15px; align-items: center; gap: 12px; border-radius: 8px; z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer;}
 #mini-player img { width: 40px; height: 40px; border-radius: 4px; background: #333; }
 .m-info { flex: 1; min-width: 0; }
 .m-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 14px; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center;}
 
+/* Большой плеер */
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 40px; }
 .fp-header { display: flex; margin-bottom: 20px; }
 .back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -54,31 +70,51 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </head>
 <body>
 
-<div id="view-home">
-  <div class="header">
-    <input id="q" placeholder="Что послушаем?" onkeypress="if(event.key==='Enter') search()">
-    <button class="btn-search" id="btn-search">Найти</button>
-  </div>
-  <div id="list"></div>
+<!-- Логотип -->
+<div class="top-bar">
+  <div class="logo">BOBIFY</div>
 </div>
 
+<!-- Поиск -->
+<div class="header">
+  <input id="q" placeholder="Что послушаем?" onkeypress="if(event.key==='Enter') search()">
+  <button id="btn-search">
+    <!-- Уникальная иконка: Лупа с нотой внутри -->
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="10" cy="10" r="7"></circle>
+      <line x1="21" y1="21" x2="15" y2="15"></line>
+      <path d="M10 7v5.5"></path>
+      <circle cx="8.5" cy="12.5" r="1.5" fill="#000" stroke="none"></circle>
+      <path d="M10 7l2-1"></path>
+    </svg>
+  </button>
+</div>
+
+<div id="list"></div>
+
+<!-- Мини-плеер -->
 <div id="mini-player">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
   <button class="play-btn-mini" id="mini-play-btn">▶</button>
 </div>
 
+<!-- Большой плеер -->
 <div id="full-player">
   <div class="fp-header">
-    <button class="back-btn" id="btn-close-player"><svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button>
+    <button class="back-btn" id="btn-close-player">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+    </button>
   </div>
   <img id="fp-thumb" class="fp-cover" src="">
   <div class="fp-title" id="fp-title"></div>
   <div class="fp-artist" id="fp-artist"></div>
+  
   <div class="fp-actions">
-    <button id="fp-fav-btn" class="fp-action-btn"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
-    <button id="fp-dl-btn" class="fp-action-btn"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
+    <button id="fp-fav-btn" class="fp-action-btn"></button>
+    <button id="fp-dl-btn" class="fp-action-btn"></button>
   </div>
+
   <div class="progress-container">
     <span id="time-current" class="time-text">0:00</span>
     <input type="range" id="seekBar" value="0" min="0" max="100" step="0.1">
@@ -91,10 +127,24 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   </div>
 </div>
 
+<!-- Меню с иконками -->
 <div class="navbar">
-  <div class="nav-item active" id="tab-home">Главная</div>
-  <div class="nav-item" id="tab-favs">Избранное</div>
-  <div class="nav-item" id="tab-downloads">Скачанные</div>
+  <div class="nav-item active" id="tab-home">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    <span class="nav-text">Главная</span>
+  </div>
+  <div class="nav-item" id="tab-favs">
+    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    <span class="nav-text">Избранное</span>
+  </div>
+  <div class="nav-item" id="tab-downloads">
+    <!-- Оригинальная иконка скачивания (диск со стрелкой вниз) -->
+    <svg viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9v-2h2v2zm0-4H9V7h2v5zm4 4h-2v-2h2v2zm0-4h-2V7h2v5z" fill="none"/>
+      <path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/>
+    </svg>
+    <span class="nav-text">Скачанные</span>
+  </div>
 </div>
 
 <audio id="audio"></audio>
@@ -105,7 +155,7 @@ var favs = [], downloads = [];
 var currentTab = 'home';
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
-// Безопасная загрузка
+// Загрузка сохраненных данных
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
 
@@ -153,7 +203,6 @@ function switchTab(tab) {
 function renderList(data, type) {
   var list = document.getElementById('list');
   if(type === 'home') {
-    // Просто показываем избранное как рекомендации на главной
     if(favs.length === 0) { list.innerHTML = '<p style="text-align:center;margin-top:40px;color:#aaa;">Добавьте треки в избранное, и они появятся здесь.</p>'; return; }
     list.innerHTML = '<div class="section-title">Ваша музыка</div>';
     drawTracks(favs);
@@ -268,9 +317,8 @@ function playTrack(index) {
         document.getElementById('fp-artist').innerText = t.artist;
       } else throw new Error('Нет потока');
     }).catch(function() {
-      // Если стриминг не удался, качаем
       downloadTrack(t, document.getElementById('fp-dl-btn'));
-      setTimeout(function(){ playTrack(index); }, 3000); // Пробуем еще раз через 3 сек
+      setTimeout(function(){ playTrack(index); }, 3000);
     });
   }
 }
