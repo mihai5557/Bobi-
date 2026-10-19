@@ -147,8 +147,7 @@ function switchTab(tab) {
   if(tab === 'search') {
     document.getElementById('search-header').style.display = 'flex';
     document.getElementById('view-search').style.display = 'block';
-    // Просто показываем пустой экран с подсказкой
-    document.getElementById('list-search').innerHTML = '<p style="text-align:center; margin-top:40px; color:#aaa;">Введите название песни сверху, чтобы начать!</p>';
+    document.getElementById('list-search').innerHTML = '<p style="text-align:center; margin-top:40px; color:#aaa;">Введите название песни сверху!</p>';
   } else {
     document.getElementById('search-header').style.display = 'none';
     document.getElementById('view-' + tab).style.display = 'block';
@@ -159,7 +158,7 @@ function switchTab(tab) {
 
 function doSearch() {
   var q = document.getElementById('q').value; if(!q) return;
-  switchTab('search'); // Убедимся, что мы на вкладке поиска
+  switchTab('search');
   var list = document.getElementById('list-search');
   list.innerHTML = '<p style="text-align:center; padding:20px;">Поиск...</p>';
   
@@ -168,24 +167,17 @@ function doSearch() {
   .then(function(data) {
     if(data.error) { list.innerText = data.error; return; }
     window.searchResults = data;
-    queue = data; // Сохраняем в очередь для плеера
+    queue = data;
     list.innerHTML = '<div class="section-title">Результаты</div>';
-    renderListTo('list-search', data, ''); // Рисуем треки (заголовок пустой, т.к. уже добавили)
+    renderListTo('list-search', data, '');
   }).catch(function() { list.innerText = 'Ошибка сети (Сервер спит)'; });
 }
 
-// Генерация HTML-строки для треков
 function renderListTo(containerId, data, title) {
   var container = document.getElementById(containerId);
   var html = '';
-  
   if(title) html += '<div class="section-title">' + title + '</div>';
-  
-  if(data.length === 0 && title) { 
-    html += '<p style="text-align:center; color:#aaa; margin-top:20px;">Пусто</p>'; 
-    container.innerHTML = html; 
-    return; 
-  }
+  if(data.length === 0 && title) { container.innerHTML = html + '<p style="text-align:center; color:#aaa; margin-top:20px;">Пусто</p>'; return; }
   
   for(var i=0; i<data.length; i++) {
     var track = data[i];
@@ -199,18 +191,11 @@ function renderListTo(containerId, data, title) {
               '<button class="action-btn" onclick="downloadById(\''+track.id+'\', this)">'+(isDl?getCheckIcon():getDlIcon())+'</button>' +
             '</div>';
   }
-  
   container.innerHTML = html;
 }
 
-// Поиск трека в текущей очереди по ID и запуск
 function playTrackFromList(id) {
-  for(var i=0; i<queue.length; i++) {
-    if(queue[i].id === id) {
-      playTrack(i);
-      return;
-    }
-  }
+  for(var i=0; i<queue.length; i++) { if(queue[i].id === id) { playTrack(i); return; } }
 }
 
 function toggleFavById(id, btn) {
@@ -223,9 +208,7 @@ function toggleFavById(id, btn) {
   
   if(idx !== -1) { favs.splice(idx, 1); btn.className = 'action-btn'; btn.innerHTML = getHeartIcon(false); }
   else { favs.push(track); btn.className = 'action-btn active'; btn.innerHTML = getHeartIcon(true); }
-  
   localStorage.setItem('favs', JSON.stringify(favs));
-  // Если мы на вкладке Избранное, обновляем её
   if(document.getElementById('tab-favs').className.indexOf('active') !== -1) switchTab('favs');
 }
 
@@ -233,7 +216,6 @@ function downloadById(id, btn) {
   var track = null;
   for(var i=0; i<queue.length; i++) { if(queue[i].id === id) track = queue[i]; }
   if(!track) return;
-
   btn.innerHTML = '⏳';
   fetch('/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: track.id, url: track.url})})
   .then(function(r) { return r.json(); })
@@ -267,6 +249,23 @@ function playTrack(index) {
   document.getElementById('fp-fav').innerHTML = getHeartIcon(isFav);
   document.getElementById('fp-fav').className = 'fp-action-btn ' + (isFav?'active':'');
 
+  // === ШТОРКА: Обновляем метаданные при смене трека ===
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: t.title,
+      artist: t.artist || 'SoundCloud',
+      album: 'Bobify',
+      artwork: [
+        { src: t.thumb || defaultImg, sizes: '512x512', type: 'image/png' }
+      ]
+    });
+
+    navigator.mediaSession.setActionHandler('play', function() { togglePlay(); });
+    navigator.mediaSession.setActionHandler('pause', function() { togglePlay(); });
+    navigator.mediaSession.setActionHandler('previoustrack', function() { playPrev(); });
+    navigator.mediaSession.setActionHandler('nexttrack', function() { playNext(); });
+  }
+
   var audio = document.getElementById('audio'); audio.pause();
   var downloaded = null;
   for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) downloaded = downloads[i]; }
@@ -293,18 +292,25 @@ function playTrack(index) {
 
 function togglePlay() {
   var a = document.getElementById('audio'); if(!a.src) return;
-  if(a.paused) { a.play(); document.getElementById('main-play-btn').innerText = '❚❚'; document.getElementById('mini-play-btn').innerText = '❚❚'; }
-  else { a.pause(); document.getElementById('main-play-btn').innerText = '▶'; document.getElementById('mini-play-btn').innerText = '▶'; }
+  if(a.paused) { 
+    a.play(); 
+    document.getElementById('main-play-btn').innerText = '❚❚'; 
+    document.getElementById('mini-play-btn').innerText = '❚❚';
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+  } else { 
+    a.pause(); 
+    document.getElementById('main-play-btn').innerText = '▶'; 
+    document.getElementById('mini-play-btn').innerText = '▶';
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+  }
 }
 
 function toggleFavCurrent() {
   if(currentIndex !== -1) toggleFavById(queue[currentIndex].id, document.getElementById('fp-fav'));
 }
-
 function downloadCurrent() {
   if(currentIndex !== -1) downloadById(queue[currentIndex].id, document.getElementById('fp-dl'));
 }
-
 function playNext() { if(queue.length) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
 function playPrev() { if(queue.length) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
 function openFullPlayer() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; }
