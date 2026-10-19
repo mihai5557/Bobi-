@@ -19,7 +19,6 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 
-/* Горизонтальная шторка для рекомендаций */
 .h-scroll { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
 .h-scroll::-webkit-scrollbar { display: none; }
 .h-card { flex: 0 0 120px; background: #181818; padding: 10px; border-radius: 10px; cursor: pointer; }
@@ -28,7 +27,6 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .h-card .h-title { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .h-card .h-artist { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
 
-/* Обычные треки */
 .track { display: flex; align-items: center; gap: 8px; padding: 12px 5px; border-radius: 8px; border-bottom: 1px solid #282828; cursor: pointer; }
 .track:active { background: #282828; }
 .track img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #333; }
@@ -76,10 +74,12 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 <div class="header" id="search-header">
   <input id="q" placeholder="Что послушаем?">
+  <!-- Кнопка поиска привязана напрямую -->
   <button id="btn-search" onclick="doSearch()">🔍</button>
 </div>
 
 <div id="view-search">
+  <!-- Блок рекомендаций -->
   <div id="home-recommendations"></div>
   <div id="list-search"></div>
 </div>
@@ -90,6 +90,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <div id="mini-player" onclick="document.getElementById('full-player').style.display='flex'">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
+  <!-- Кнопка Play в мини-плеере -->
   <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">▶</button>
 </div>
 
@@ -119,6 +120,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </div>
 
 <div class="navbar">
+  <!-- Вкладки привязаны напрямую -->
   <div class="nav-item active" id="tab-search" onclick="switchTab('search')">🏠 Главная</div>
   <div class="nav-item" id="tab-favs" onclick="switchTab('favs')">❤️ Избранное</div>
   <div class="nav-item" id="tab-downloads" onclick="switchTab('downloads')">⬇ Скачанные</div>
@@ -127,16 +129,14 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio"></audio>
 
 <script>
+// --- ОСНОВНОЙ СКРИПТ (РАБОТАЕТ ВСЕГДА) ---
 var queue = [], currentIndex = -1;
 var favs = [], downloads = [];
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
-
-// Загружаем последний прослушанный трек
-var lastPlayed = null;
-try { var lp = localStorage.getItem('lastPlayed'); if(lp) lastPlayed = JSON.parse(lp); } catch(e) {}
+try { var lp = localStorage.getItem('lastPlayed'); if(lp) window.lastPlayed = JSON.parse(lp); } catch(e) {}
 
 var audio = document.getElementById('audio');
 
@@ -164,8 +164,10 @@ function switchTab(tab) {
     document.getElementById('search-header').style.display = 'flex';
     document.getElementById('view-search').style.display = 'block';
     
-    // Каждый раз при заходе на главную обновляем рекомендации
-    loadRecommendations();
+    // Запускаем рекомендации с задержкой, чтобы они не мешали основному скрипту
+    setTimeout(function() {
+        try { loadRecommendations(); } catch(e) {}
+    }, 500);
   } else {
     document.getElementById('search-header').style.display = 'none';
     document.getElementById('view-' + tab).style.display = 'block';
@@ -173,78 +175,6 @@ function switchTab(tab) {
     if(tab === 'downloads') renderList('list-downloads', downloads, 'Скачанные');
   }
 }
-
-// === ЛОГИКА РЕКОМЕНДАЦИЙ ===
-function loadRecommendations() {
-    var container = document.getElementById('home-recommendations');
-    var query = '';
-    var title = '';
-
-    // Если есть последний трек — ищем по его исполнителю
-    if (lastPlayed && lastPlayed.artist && lastPlayed.artist !== 'SoundCloud') {
-        query = lastPlayed.artist;
-        title = 'Похожие на ' + lastPlayed.artist;
-    } else if (lastPlayed && lastPlayed.title) {
-        // Если артист неизвестен, ищем по названию
-        query = lastPlayed.title;
-        title = 'Рекомендуем послушать';
-    } else {
-        // Если ничего не слушали — рандомный жанр
-        var genres = ['lofi', 'phonk', 'rap hits', 'pop music'];
-        query = genres[Math.floor(Math.random() * genres.length)];
-        title = 'Рекомендуем послушать';
-    }
-
-    container.innerHTML = '<div class="section-title">🎵 ' + title + '</div><p style="color:#aaa; font-size:12px;">Загрузка...</p>';
-
-    fetch('/search?q=' + encodeURIComponent(query))
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-        if (!Array.isArray(data) || data.length === 0) {
-            container.innerHTML = '<div class="section-title">🎵 ' + title + '</div><p style="color:#aaa; font-size:12px;">Не удалось найти похожие треки</p>';
-            return;
-        }
-        
-        // Фильтруем: убираем тот трек, который сейчас играет
-        var recs = [];
-        for (var i = 0; i < data.length; i++) {
-            if (lastPlayed && data[i].id === lastPlayed.id) continue; // Пропускаем текущий трек
-            recs.push(data[i]);
-            if (recs.length >= 6) break; // Берем только 6 штук
-        }
-
-        if (recs.length === 0) {
-            container.innerHTML = '<div class="section-title">🎵 ' + title + '</div><p style="color:#aaa; font-size:12px;">Похожих треков пока нет</p>';
-            return;
-        }
-
-        window.recQueue = recs; 
-        
-        var html = '<div class="section-title">🎵 ' + title + '</div><div class="h-scroll">';
-        for (var j = 0; j < recs.length; j++) {
-            var t = recs[j];
-            var safeTitle = (t.title||'').replace(/[&<>'"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c] || c; });
-            var safeArtist = (t.artist||'').replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c] || c; });
-            
-            html += '<div class="h-card" onclick="playRecommendation(' + j + ')">' +
-                    '<img src="' + (t.thumb || defaultImg) + '">' +
-                    '<div class="h-title">' + safeTitle + '</div>' +
-                    '<div class="h-artist">' + safeArtist + '</div>' +
-                    '</div>';
-        }
-        html += '</div>';
-        container.innerHTML = html;
-    })
-    .catch(function() {
-        container.innerHTML = '<div class="section-title">🎵 ' + title + '</div><p style="color:#aaa; font-size:12px;">Ошибка сети</p>';
-    });
-}
-
-function playRecommendation(index) {
-    queue = window.recQueue;
-    playTrack(index);
-}
-// ===========================
 
 function renderList(containerId, data, title) {
   var container = document.getElementById(containerId);
@@ -271,7 +201,6 @@ function renderList(containerId, data, title) {
 
 function doSearch() {
   var q = document.getElementById('q').value; if(!q) return;
-  // Скрываем рекомендации при поиске, чтобы они не мешали
   document.getElementById('home-recommendations').style.display = 'none';
   
   switchTab('search');
@@ -341,8 +270,7 @@ function playTrack(index) {
   currentIndex = index;
   var t = queue[index];
   
-  // СОХРАНЯЕМ ТЕКУЩИЙ ТРЕК ДЛЯ РЕКОМЕНДАЦИЙ
-  lastPlayed = t;
+  window.lastPlayed = t;
   localStorage.setItem('lastPlayed', JSON.stringify(t));
 
   document.getElementById('full-player').style.display = 'flex';
@@ -379,4 +307,76 @@ function playTrack(index) {
       } else throw new Error('Нет потока');
     }).catch(function() {
       downloadTrack('list-search', currentIndex, document.getElementById('fp-dl'));
-      setTimeout(
+      setTimeout(function(){ playTrack(index); }, 3000);
+    });
+  }
+}
+
+function playNext() { 
+    if(queue && queue.length > 0) { 
+        currentIndex = (currentIndex + 1) % queue.length; 
+        playTrack(currentIndex); 
+    } 
+}
+
+function playPrev() { 
+    if(queue && queue.length > 0) { 
+        currentIndex = (currentIndex - 1 + queue.length) % queue.length; 
+        playTrack(currentIndex); 
+    } 
+}
+
+function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
+function toggleFavCurrent() { if(currentIndex !== -1) toggleFav('list-search', currentIndex, document.getElementById('fp-fav')); }
+function downloadCurrent() { if(currentIndex !== -1) downloadTrack('list-search', currentIndex, document.getElementById('fp-dl')); }
+function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
+function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+// --- БЛОК РЕКОМЕНДАЦИЙ (ОТДЕЛЬНО) ---
+function loadRecommendations() {
+    var container = document.getElementById('home-recommendations');
+    if (!container) return;
+
+    var query = '';
+    var recTitle = '';
+
+    if (window.lastPlayed && window.lastPlayed.artist && window.lastPlayed.artist !== 'SoundCloud') {
+        query = window.lastPlayed.artist;
+        recTitle = 'Похожие на ' + window.lastPlayed.artist;
+    } else if (window.lastPlayed && window.lastPlayed.title) {
+        query = window.lastPlayed.title;
+        recTitle = 'Рекомендуем послушать';
+    } else {
+        var genres = ['lofi', 'phonk', 'rap hits', 'pop music'];
+        query = genres[Math.floor(Math.random() * genres.length)];
+        recTitle = 'Рекомендуем послушать';
+    }
+
+    container.innerHTML = '<div class="section-title">🎵 ' + recTitle + '</div><p style="color:#aaa; font-size:12px;">Загрузка...</p>';
+
+    fetch('/search?q=' + encodeURIComponent(query))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (!Array.isArray(data) || data.length === 0) {
+            container.innerHTML = '<div class="section-title">🎵 ' + recTitle + '</div><p style="color:#aaa; font-size:12px;">Не удалось найти похожие треки</p>';
+            return;
+        }
+        
+        var recs = [];
+        for (var i = 0; i < data.length; i++) {
+            if (window.lastPlayed && data[i].id === window.lastPlayed.id) continue; 
+            recs.push(data[i]);
+            if (recs.length >= 6) break; 
+        }
+
+        if (recs.length === 0) {
+            container.innerHTML = '<div class="section-title">🎵 ' + recTitle + '</div><p style="color:#aaa; font-size:12px;">Похожих треков пока нет</p>';
+            return;
+        }
+
+        window.recQueue = recs; 
+        
+        var html = '<div class="section-title">🎵 ' + recTitle + '</div><div class="h-scroll">';
+        for (var j = 0; j < recs.length; j++) {
+            var t = recs[j];
+            var safeTitle = (t.title||'').replace(/[&<>'"]/g, function(c){ return {'&':'&a
