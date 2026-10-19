@@ -27,7 +27,10 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .track-info { flex: 1; min-width: 0; }
 .t-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-artist { font-size: 13px; color: #aaa; }
+
+/* ЖЕСТКИЕ РАЗМЕРЫ ДЛЯ КНОПОК */
 .action-btn { background: none; border: none; padding: 8px; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+.action-btn svg { width: 24px; height: 24px; display: block; }
 .action-btn.active { color: #1ed760; }
 
 .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #282828; z-index: 50; }
@@ -39,7 +42,8 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 #mini-player img { width: 40px; height: 40px; border-radius: 4px; background: #333; }
 .m-info { flex: 1; min-width: 0; }
 .m-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 14px; color: #000; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+.play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #000;}
+.play-btn-mini svg { width: 20px; height: 20px; display: block; }
 
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 40px; }
 .fp-header { display: flex; margin-bottom: 20px; }
@@ -49,6 +53,7 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .fp-artist { font-size: 16px; color: #aaa; margin-bottom: 20px; text-align: center; }
 .fp-actions { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; }
 .fp-action-btn { background: rgba(255,255,255,0.1); border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+.fp-action-btn svg { width: 24px; height: 24px; display: block; }
 .fp-action-btn.active { color: #1ed760; }
 .progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 25px; }
 .time-text { font-size: 12px; color: #aaa; min-width: 35px; text-align: center; }
@@ -56,8 +61,10 @@ input[type=range] { -webkit-appearance: none; width: 100%; background: transpare
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #4d4d4d; border-radius: 2px; }
 .controls { display: flex; justify-content: center; align-items: center; gap: 30px; }
-.ctrl-btn { background: none; border: none; color: white; font-size: 32px; cursor: pointer; }
-.play-btn-main { background: #1ed760; color: black; border: none; width: 70px; height: 70px; border-radius: 50%; font-size: 28px; display: flex; justify-content: center; align-items: center; cursor: pointer;}
+.ctrl-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+.ctrl-btn svg { width: 32px; height: 32px; display: block; }
+.play-btn-main { background: #1ed760; color: black; border: none; width: 70px; height: 70px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer;}
+.play-btn-main svg { width: 32px; height: 32px; display: block; }
 </style>
 </head>
 <body>
@@ -82,7 +89,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <div id="mini-player" onclick="openFullPlayer()">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
-  <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">▶</button>
+  <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">
+     <svg id="mini-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+  </button>
 </div>
 
 <div id="full-player">
@@ -106,9 +115,15 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
     <span id="time-total" class="time-text">0:00</span>
   </div>
   <div class="controls">
-    <button class="ctrl-btn" onclick="playPrev()">⏮</button>
-    <button class="play-btn-main" id="main-play-btn" onclick="togglePlay()">▶</button>
-    <button class="ctrl-btn" onclick="playNext()">⏭</button>
+    <button class="ctrl-btn" onclick="playPrev()">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+    </button>
+    <button class="play-btn-main" id="main-play-btn" onclick="togglePlay()">
+      <svg id="main-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button class="ctrl-btn" onclick="playNext()">
+      <svg viewBox="0 0 24 24" fill="white"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+    </button>
   </div>
 </div>
 
@@ -131,8 +146,28 @@ var queue = [], currentIndex = -1;
 var favs = [], downloads = [];
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
+// Иконки
+var iconPlay = '<path d="M8 5v14l11-7z"/>';
+var iconPause = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+var iconDl = '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" fill="none" stroke="currentColor" stroke-width="2"/>';
+var iconCheck = '<path d="M20 6L9 17l-5-5" fill="none" stroke="#1ed760" stroke-width="2"/>';
+var iconHeart = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>';
+var iconHeartFill = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#1ed760" stroke="#1ed760" stroke-width="2"/>';
+
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
+
+var audio = document.getElementById('audio');
+
+// ГЛАВНЫЙ ФИКС: Иконки меняются ТОЛЬКО по событиям плеера
+audio.onplay = function() {
+  document.getElementById('main-play-icon').innerHTML = iconPause;
+  document.getElementById('mini-play-icon').innerHTML = iconPause;
+};
+audio.onpause = function() {
+  document.getElementById('main-play-icon').innerHTML = iconPlay;
+  document.getElementById('mini-play-icon').innerHTML = iconPlay;
+};
 
 function switchTab(tab) {
   document.getElementById('tab-search').className = 'nav-item';
@@ -184,11 +219,14 @@ function renderListTo(containerId, data, title) {
     var isFav = false; for(var j=0; j<favs.length; j++) { if(favs[j].id === track.id) isFav = true; }
     var isDl = false; for(var k=0; k<downloads.length; k++) { if(downloads[k].id === track.id) isDl = true; }
     
+    var heartIcon = isFav ? iconHeartFill : iconHeart;
+    var dlIcon = isDl ? iconCheck : iconDl;
+    
     html += '<div class="track">' +
               '<img src="'+(track.thumb||defaultImg)+'" onerror="this.src=\''+defaultImg+'\'" onclick="playTrackFromList(\''+track.id+'\')">' +
               '<div class="track-info" onclick="playTrackFromList(\''+track.id+'\')"><div class="t-title">'+track.title+'</div><div class="t-artist">'+track.artist+'</div></div>' +
-              '<button class="action-btn '+(isFav?'active':'')+'" onclick="toggleFavById(\''+track.id+'\', this)">'+(isFav?getHeartIcon(true):getHeartIcon(false))+'</button>' +
-              '<button class="action-btn" onclick="downloadById(\''+track.id+'\', this)">'+(isDl?getCheckIcon():getDlIcon())+'</button>' +
+              '<button class="action-btn '+(isFav?'active':'')+'" id="fav-'+track.id+'" onclick="toggleFavById(\''+track.id+'\', this)"><svg viewBox="0 0 24 24" width="24" height="24">'+heartIcon+'</svg></button>' +
+              '<button class="action-btn" id="dl-'+track.id+'" onclick="downloadById(\''+track.id+'\', this)"><svg viewBox="0 0 24 24" width="24" height="24">'+dlIcon+'</svg></button>' +
             '</div>';
   }
   container.innerHTML = html;
@@ -206,17 +244,30 @@ function toggleFavById(id, btn) {
   var idx = -1;
   for(var i=0; i<favs.length; i++) { if(favs[i].id === id) idx = i; }
   
-  if(idx !== -1) { favs.splice(idx, 1); btn.className = 'action-btn'; btn.innerHTML = getHeartIcon(false); }
-  else { favs.push(track); btn.className = 'action-btn active'; btn.innerHTML = getHeartIcon(true); }
+  if(idx !== -1) { 
+    favs.splice(idx, 1); 
+    btn.className = 'action-btn'; 
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconHeart+'</svg>'; 
+  } else { 
+    favs.push(track); 
+    btn.className = 'action-btn active'; 
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconHeartFill+'</svg>'; 
+  }
+  
   localStorage.setItem('favs', JSON.stringify(favs));
-  if(document.getElementById('tab-favs').className.indexOf('active') !== -1) switchTab('favs');
+  if(currentIndex !== -1 && queue[currentIndex].id === id) {
+    document.getElementById('fp-fav').className = idx === -1 ? 'fp-action-btn active' : 'fp-action-btn';
+    document.getElementById('fp-fav').innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">' + (idx === -1 ? iconHeartFill : iconHeart) + '</svg>';
+  }
 }
 
 function downloadById(id, btn) {
   var track = null;
   for(var i=0; i<queue.length; i++) { if(queue[i].id === id) track = queue[i]; }
   if(!track) return;
-  btn.innerHTML = '⏳';
+  
+  btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2v4l2.3-2.3L12 2z" fill="currentColor"/></svg>'; // Часики-заглушка
+  
   fetch('/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: track.id, url: track.url})})
   .then(function(r) { return r.json(); })
   .then(function(d) {
@@ -227,9 +278,16 @@ function downloadById(id, btn) {
     if(idx !== -1) downloads.splice(idx, 1);
     downloads.push(track);
     localStorage.setItem('downloads', JSON.stringify(downloads));
-    btn.innerHTML = getCheckIcon();
+    
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconCheck+'</svg>';
+    if(currentIndex !== -1 && queue[currentIndex].id === id) {
+      document.getElementById('fp-dl').innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconCheck+'</svg>';
+    }
     if(document.getElementById('tab-downloads').className.indexOf('active') !== -1) switchTab('downloads');
-  }).catch(function(e) { alert('Ошибка: ' + e.message); btn.innerHTML = getDlIcon(); });
+  }).catch(function(e) { 
+    alert('Ошибка: ' + e.message); 
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconDl+'</svg>'; 
+  });
 }
 
 function playTrack(index) {
@@ -243,44 +301,31 @@ function playTrack(index) {
   document.getElementById('fp-title').innerText = t.title;
   document.getElementById('mini-title').innerText = t.title;
   document.getElementById('fp-artist').innerText = 'Загрузка...';
-  document.getElementById('main-play-btn').innerText = '⏳';
   
   var isFav = false; for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) isFav = true; }
-  document.getElementById('fp-fav').innerHTML = getHeartIcon(isFav);
+  document.getElementById('fp-fav').innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+(isFav?iconHeartFill:iconHeart)+'</svg>';
   document.getElementById('fp-fav').className = 'fp-action-btn ' + (isFav?'active':'');
+  
+  var isDl = false; for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) isDl = true; }
+  document.getElementById('fp-dl').innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+(isDl?iconCheck:iconDl)+'</svg>';
 
-  // === ШТОРКА: Обновляем метаданные при смене трека ===
-  if ('mediaSession' in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: t.title,
-      artist: t.artist || 'SoundCloud',
-      album: 'Bobify',
-      artwork: [
-        { src: t.thumb || defaultImg, sizes: '512x512', type: 'image/png' }
-      ]
-    });
-
-    navigator.mediaSession.setActionHandler('play', function() { togglePlay(); });
-    navigator.mediaSession.setActionHandler('pause', function() { togglePlay(); });
-    navigator.mediaSession.setActionHandler('previoustrack', function() { playPrev(); });
-    navigator.mediaSession.setActionHandler('nexttrack', function() { playNext(); });
-  }
-
-  var audio = document.getElementById('audio'); audio.pause();
+  audio.pause();
   var downloaded = null;
   for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) downloaded = downloads[i]; }
 
   if (downloaded) {
-    audio.src = '/play/' + downloaded.file; audio.load();
-    audio.play().then(function() { document.getElementById('main-play-btn').innerText = '❚❚'; });
+    audio.src = '/play/' + downloaded.file; 
+    audio.load();
+    audio.play();
     document.getElementById('fp-artist').innerText = t.artist;
   } else {
     fetch('/stream_url?url=' + encodeURIComponent(t.url))
     .then(function(r) { return r.json(); })
     .then(function(d) {
       if(d.stream_url) {
-        audio.src = d.stream_url; audio.load();
-        audio.play().then(function() { document.getElementById('main-play-btn').innerText = '❚❚'; });
+        audio.src = d.stream_url; 
+        audio.load();
+        audio.play();
         document.getElementById('fp-artist').innerText = t.artist;
       } else throw new Error('Нет потока');
     }).catch(function() {
@@ -291,18 +336,9 @@ function playTrack(index) {
 }
 
 function togglePlay() {
-  var a = document.getElementById('audio'); if(!a.src) return;
-  if(a.paused) { 
-    a.play(); 
-    document.getElementById('main-play-btn').innerText = '❚❚'; 
-    document.getElementById('mini-play-btn').innerText = '❚❚';
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
-  } else { 
-    a.pause(); 
-    document.getElementById('main-play-btn').innerText = '▶'; 
-    document.getElementById('mini-play-btn').innerText = '▶';
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
-  }
+  if(!audio.src) return;
+  if(audio.paused) audio.play();
+  else audio.pause();
 }
 
 function toggleFavCurrent() {
@@ -316,20 +352,13 @@ function playPrev() { if(queue.length) { currentIndex = (currentIndex - 1 + queu
 function openFullPlayer() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; }
 function closeFullPlayer() { document.getElementById('full-player').style.display = 'none'; }
 function updateProgress() {
-  var a = document.getElementById('audio'); 
-  if(!a.duration || a.duration === Infinity) return;
-  document.getElementById('seekBar').value = (a.currentTime / a.duration) * 100;
-  document.getElementById('time-current').innerText = fmt(a.currentTime);
-  document.getElementById('time-total').innerText = fmt(a.duration);
+  if(!audio.duration || audio.duration === Infinity) return;
+  document.getElementById('seekBar').value = (audio.currentTime / audio.duration) * 100;
+  document.getElementById('time-current').innerText = fmt(audio.currentTime);
+  document.getElementById('time-total').innerText = fmt(audio.duration);
 }
-function seekAudio() { var a = document.getElementById('audio'); if(a.duration) a.currentTime = (document.getElementById('seekBar').value / 100) * a.duration; }
+function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
 function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
-function getHeartIcon(active) {
-  if (active) return '<svg viewBox="0 0 24 24" width="24" height="24" stroke="#1ed760" stroke-width="2" fill="#1ed760"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
-  return '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
-}
-function getDlIcon() { return '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>'; }
-function getCheckIcon() { return '<svg viewBox="0 0 24 24" width="24" height="24" stroke="#1ed760" stroke-width="2" fill="none"><path d="M20 6L9 17l-5-5"/></svg>'; }
 
 switchTab('search');
 </script>
