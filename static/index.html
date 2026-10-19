@@ -53,30 +53,16 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 /* Большой плеер */
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 40px; }
 .fp-header { display: flex; margin-bottom: 20px; }
-.back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 28px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; padding-bottom: 8px; }
 .fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .fp-artist { font-size: 16px; color: #aaa; margin-bottom: 25px; text-align: center; }
 
-/* --- НОВЫЙ ДИЗАЙН КНОПОК В БОЛЬШОМ ПЛЕЕРЕ --- */
+/* Кнопки избранного и скачивания */
 .fp-actions { display: flex; justify-content: center; gap: 25px; margin-bottom: 30px; }
-.fp-action-btn { 
-    background: rgba(255, 255, 255, 0.1); 
-    border: none; 
-    width: 50px; 
-    height: 50px; 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    color: #fff; 
-    cursor: pointer; 
-    font-size: 24px; /* Размер символа */
-    transition: transform 0.2s, background 0.2s;
-}
+.fp-action-btn { background: rgba(255, 255, 255, 0.1); border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; font-size: 24px; transition: transform 0.2s, background 0.2s;}
 .fp-action-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.2); }
 .fp-action-btn.active { color: #1ed760; }
-/* ------------------------------------------- */
 
 /* Ползунок */
 .progress-container { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
@@ -87,7 +73,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 /* Управление */
 .controls { display: flex; justify-content: center; align-items: center; gap: 30px; }
-.ctrl-btn { background: none; border: none; color: white; cursor: pointer; font-size: 24px; font-weight: bold;}
+.ctrl-btn { background: none; border: none; color: white; cursor: pointer; font-size: 32px; font-weight: bold; padding: 10px;}
 .main-play-btn { background: #1ed760; color: black; border: none; width: 72px; height: 72px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(30, 215, 96, 0.3);}
 .main-play-btn .icon-play { border-top-width: 10px; border-bottom-width: 10px; border-left-width: 16px; margin-left: 4px; }
 .main-play-btn .icon-pause { width: 14px; height: 20px; border-left-width: 5px; border-right-width: 5px; }
@@ -119,13 +105,13 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 <div id="full-player">
   <div class="fp-header">
-    <button class="back-btn" onclick="document.getElementById('full-player').style.display='none'">V</button>
+    <!-- Красивая кнопка назад (стрелка вниз) -->
+    <button class="back-btn" onclick="document.getElementById('full-player').style.display='none'">⌄</button>
   </div>
   <img id="fp-thumb" class="fp-cover" src="">
   <div class="fp-title" id="fp-title"></div>
   <div class="fp-artist" id="fp-artist"></div>
   
-  <!-- Обновленные кнопки (используем символы ♡ и ⬇) -->
   <div class="fp-actions">
     <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()">♡</button>
     <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()">⬇</button>
@@ -138,11 +124,12 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   </div>
   
   <div class="controls">
-    <button class="ctrl-btn" onclick="playPrev()">PREV</button>
+    <!-- Красивые кнопки переключения треков -->
+    <button class="ctrl-btn" onclick="playPrev()">⏮</button>
     <button class="main-play-btn" id="main-play-btn" onclick="togglePlay()">
       <span id="main-play-icon" class="icon-play"></span>
     </button>
-    <button class="ctrl-btn" onclick="playNext()">NEXT</button>
+    <button class="ctrl-btn" onclick="playNext()">⏭</button>
   </div>
 </div>
 
@@ -271,7 +258,7 @@ function toggleFav(containerId, index, btn) {
   
   if(currentIndex !== -1 && queue[currentIndex].id === track.id) {
     var isF = idx === -1;
-    document.getElementById('fp-fav').innerText = isF ? '♥' : '♡'; // Красивое сердечко
+    document.getElementById('fp-fav').innerText = isF ? '♥' : '♡';
     document.getElementById('fp-fav').className = 'fp-action-btn ' + (isF?'active':'');
   }
 }
@@ -301,7 +288,7 @@ function downloadTrack(containerId, index, btn) {
           if (btn) btn.innerText = 'OK';
           
           if(currentIndex !== -1 && queue[currentIndex].id === track.id) {
-            document.getElementById('fp-dl').innerText = '✓'; // Красивая галочка
+            document.getElementById('fp-dl').innerText = '✓';
           }
         } catch(e) { alert(e.message); if (btn) btn.innerText = 'DL'; }
       } else { alert('Ошибка сети'); if (btn) btn.innerText = 'DL'; }
@@ -325,11 +312,11 @@ function playTrack(index) {
   document.getElementById('fp-artist').innerText = 'Загрузка...';
   
   var isF = false; for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) isF = true; }
-  document.getElementById('fp-fav').innerText = isF ? '♥' : '♡'; // Красивое сердечко
+  document.getElementById('fp-fav').innerText = isF ? '♥' : '♡';
   document.getElementById('fp-fav').className = 'fp-action-btn ' + (isF?'active':'');
   
   var isD = false; for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) isD = true; }
-  document.getElementById('fp-dl').innerText = isD ? '✓' : '⬇'; // Красивая стрелочка
+  document.getElementById('fp-dl').innerText = isD ? '✓' : '⬇';
 
   audio.pause();
   var downloaded = null;
