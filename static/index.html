@@ -8,13 +8,22 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background: #121212; color: #fff; font-family: system-ui, sans-serif; padding: 15px; padding-bottom: 150px; }
 
-.top-bar { display: flex; align-items: center; margin-bottom: 15px; }
+/* Новые стили для шапки и кнопки скачивания */
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #1ed760; text-transform: uppercase; }
+.download-app-btn {
+  background: #1ed760; color: #000; text-decoration: none;
+  padding: 8px 14px; border-radius: 20px; font-weight: bold;
+  font-size: 14px; display: flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 10px rgba(30, 215, 96, 0.3);
+}
+.download-app-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
 .header { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
 input { padding: 14px 18px; border-radius: 30px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
 
-#btn-search { 
-  background: #1ed760; border: none; width: 50px; height: 50px; border-radius: 50%; 
+#btn-search {
+  background: #1ed760; border: none; width: 50px; height: 50px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
 #btn-search:active { transform: scale(0.9); }
@@ -68,8 +77,13 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </head>
 <body>
 
+<!-- Обновленная шапка с кнопкой -->
 <div class="top-bar">
   <div class="logo">BOBIFY</div>
+  <a href="https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk" class="download-app-btn">
+    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    Скачать
+  </a>
 </div>
 
 <div class="header" id="search-header">
@@ -154,8 +168,6 @@ var iconHeartFill = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.4
 
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
-// Очищаем старые плейлисты из памяти, раз они больше не нужны
-try { localStorage.removeItem('playlists'); } catch(e) {}
 
 var audio = document.getElementById('audio');
 
@@ -263,10 +275,16 @@ function downloadById(id, btn) {
   if(btn) btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2v4l2.3-2.3L12 2z" fill="currentColor"/></svg>';
   
   fetch('/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: track.id, url: track.url})})
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    if(d.error) throw new Error(d.error);
-    track.file = d.file;
+  .then(function(r) { return r.json().then(function(data){ return {status: r.status, data: data}; }); })
+  .then(function(res) {
+    if(res.data.error === 'DRM_PROTECTED') {
+      alert(res.data.message);
+      if(btn) btn.innerHTML = '<svg viewBox="0 0 24 24">'+iconDl+'</svg>';
+      return;
+    }
+    if(res.data.error) throw new Error(res.data.error);
+    
+    track.file = res.data.file;
     var idx = -1;
     for(var i=0; i<downloads.length; i++) { if(downloads[i].id === track.id) idx = i; }
     if(idx !== -1) downloads.splice(idx, 1);
@@ -313,13 +331,19 @@ function playTrack(index) {
     document.getElementById('fp-artist').innerText = t.artist;
   } else {
     fetch('/stream_url?url=' + encodeURIComponent(t.url))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if(d.stream_url) {
-        audio.src = d.stream_url; 
-        audio.load(); audio.play();
-        document.getElementById('fp-artist').innerText = t.artist;
-      } else throw new Error('Нет потока');
+    .then(function(r) { return r.json().then(function(data){ return {status: r.status, data: data}; }); })
+    .then(function(res) {
+      if(res.data.error === 'DRM_PROTECTED') {
+        alert(res.data.message);
+        document.getElementById('main-play-icon').innerHTML = iconPlay;
+        document.getElementById('fp-artist').innerText = 'Ошибка: DRM';
+        return;
+      }
+      if(res.data.error) throw new Error(res.data.error);
+      
+      audio.src = res.data.stream_url; 
+      audio.load(); audio.play();
+      document.getElementById('fp-artist').innerText = t.artist;
     }).catch(function() {
       downloadById(t.id, document.getElementById('fp-dl'));
       setTimeout(function(){ playTrack(index); }, 3000);
@@ -333,17 +357,4 @@ function downloadCurrent() { if(currentIndex !== -1) downloadById(queue[currentI
 function playNext() { if(queue.length) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
 function playPrev() { if(queue.length) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
 function openFullPlayer() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; }
-function closeFullPlayer() { document.getElementById('full-player').style.display = 'none'; }
-function updateProgress() {
-  if(!audio.duration || audio.duration === Infinity) return;
-  document.getElementById('seekBar').value = (audio.currentTime / audio.duration) * 100;
-  document.getElementById('time-current').innerText = fmt(audio.currentTime);
-  document.getElementById('time-total').innerText = fmt(audio.duration);
-}
-function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
-function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
-
-switchTab('search');
-</script>
-</body>
-</html>
+function closeFullPlayer() 
