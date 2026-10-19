@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, send_file, make_response
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from pathlib import Path
 import yt_dlp, os, time
 
@@ -11,7 +11,6 @@ MUSIC_DIR.mkdir(parents=True, exist_ok=True)
 search_cache = {}
 CACHE_TIME = 600 
 
-# ЭТА ФУНКЦИЯ ЗАПРЕЩАЕТ ТЕЛЕФОНУ КЭШИРОВАТЬ САЙТ
 @app.after_request
 def add_header(response):
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
@@ -54,7 +53,12 @@ def stream_url():
                 if f.get('acodec') != 'none' and f.get('vcodec') == 'none':
                     best_url = f['url']
             return jsonify({'stream_url': best_url})
-    except Exception as e: return jsonify({'error': str(e)})
+    except Exception as e: 
+        # --- ГЛАВНОЕ ИЗМЕНЕНИЕ: Ловим ошибку DRM и возвращаем понятный статус ---
+        error_msg = str(e)
+        if 'DRM protected' in error_msg:
+            return jsonify({'error': 'DRM_PROTECTED', 'message': 'Этот трек защищён от скачивания. Попробуйте другой.'}), 403
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/download', methods=['POST'])
 def download():
@@ -68,7 +72,11 @@ def download():
         for f in os.listdir(MUSIC_DIR):
             if f.startswith(vid + '.'): return jsonify({'file': f})
         return jsonify({'error': 'Файл не создался'})
-    except Exception as ex: return jsonify({'error': str(ex)})
+    except Exception as ex: 
+        error_msg = str(ex)
+        if 'DRM protected' in error_msg:
+            return jsonify({'error': 'DRM_PROTECTED', 'message': 'Скачивание запрещено: трек защищён DRM.'}), 403
+        return jsonify({'error': str(ex)}), 500
 
 @app.route('/play/<f>')
 def play(f):
