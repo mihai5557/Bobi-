@@ -11,10 +11,10 @@ body { background: #121212; color: #fff; font-family: system-ui, sans-serif; pad
 input { padding: 12px; border-radius: 20px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
 .btn-search { padding: 12px 20px; border-radius: 20px; border: none; background: #1ed760; font-weight: bold; color: #000; cursor: pointer;}
 
-/* Главная страница (Рекомендации и Жанры) */
-.section-title { font-size: 22px; font-weight: bold; margin-bottom: 15px; margin-top: 10px; }
+/* Главная */
+.section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 .genres-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
-.genre-card { padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; position: relative; overflow: hidden; height: 80px; display: flex; align-items: flex-start; }
+.genre-card { padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; height: 80px; display: flex; align-items: flex-start; }
 .genre-card:active { opacity: 0.8; }
 .h-scroll { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; }
 .h-scroll::-webkit-scrollbar { display: none; }
@@ -23,7 +23,7 @@ input { padding: 12px; border-radius: 20px; border: none; background: #242424; c
 .h-card .t-title { font-size: 13px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .h-card .t-artist { font-size: 11px; color: #aaa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
 
-/* Строка трека */
+/* Треки */
 .track { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; }
 .track:active { background: #282828; }
 .track img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #333; }
@@ -33,7 +33,7 @@ input { padding: 12px; border-radius: 20px; border: none; background: #242424; c
 .action-btn { background: none; border: none; font-size: 22px; padding: 8px; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;}
 .action-btn.active { color: #1ed760; }
 
-/* НИЖНЕЕ МЕНЮ (Таббар) */
+/* Меню */
 .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #282828; z-index: 50; }
 .nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 11px; cursor: pointer; gap: 4px; }
 .nav-item.active { color: #fff; }
@@ -61,7 +61,6 @@ input { padding: 12px; border-radius: 20px; border: none; background: #242424; c
 input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 14px; width: 14px; border-radius: 50%; background: #fff; margin-top: -5px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; background: #4d4d4d; border-radius: 2px; }
-input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
 .controls { display: flex; justify-content: center; align-items: center; gap: 30px; }
 .ctrl-btn { background: none; border: none; color: white; font-size: 32px; cursor: pointer; }
 .play-btn-main { background: #1ed760; color: black; border: none; width: 70px; height: 70px; border-radius: 50%; font-size: 28px; display: flex; justify-content: center; align-items: center; cursor: pointer;}
@@ -69,7 +68,6 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
 </head>
 <body>
 
-<!-- Экран ПОИСКА -->
 <div id="view-search" style="display:none;">
   <div class="header">
     <input id="q" placeholder="Что послушаем?" onkeypress="if(event.key==='Enter') search()">
@@ -78,24 +76,20 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
   <div id="list-search"></div>
 </div>
 
-<!-- Экран ГЛАВНОЙ (Рекомендации) -->
-<div id="view-home">
+<div id="view-home" style="display:none;">
   <div id="home-content"></div>
 </div>
 
-<!-- Экран ИЗБРАННОГО / СКАЧАННОГО -->
 <div id="view-library" style="display:none;">
   <div id="list-library"></div>
 </div>
 
-<!-- Мини-плеер -->
 <div id="mini-player" onclick="openFull()">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
   <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">▶</button>
 </div>
 
-<!-- Большой плеер -->
 <div id="full-player">
   <div class="fp-header">
     <button class="back-btn" onclick="closeFull()"><svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg></button>
@@ -119,9 +113,8 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
   </div>
 </div>
 
-<!-- МЕНЮ -->
 <div class="navbar">
-  <div class="nav-item active" onclick="switchTab('home')" id="tab-home">
+  <div class="nav-item" onclick="switchTab('home')" id="tab-home">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главная
   </div>
   <div class="nav-item" onclick="switchTab('search')" id="tab-search">
@@ -138,10 +131,23 @@ input[type=range]:active::-webkit-slider-thumb { transform: scale(1.2); }
 <audio id="audio" ontimeupdate="updateProgress()" onended="playNext()"></audio>
 
 <script>
+// Безопасное чтение памяти (чтобы ничего не зависало)
+function safeParse(key, fallback) {
+    try { let v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } 
+    catch { return fallback; }
+}
+
 let queue = [], currentIndex = -1;
-let favs = JSON.parse(localStorage.getItem('favs') || '[]');
-let downloads = JSON.parse(localStorage.getItem('downloads') || '{}');
-let history = JSON.parse(localStorage.getItem('history') || '[]');
+let favs = safeParse('favs', []);
+let history = safeParse('history', []);
+let downloads = safeParse('downloads', []);
+
+// Сброс старых битых данных, если они не в формате массива
+if (!Array.isArray(favs)) favs = [];
+if (!Array.isArray(history)) history = [];
+if (!Array.isArray(downloads)) downloads = [];
+
+let homeHistory = [], homeRecs = [];
 const defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
 const genres = [
@@ -155,10 +161,10 @@ const genres = [
   { name: 'Джаз', color: '#e8115b', query: 'jazz' }
 ];
 
-// === ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ ===
 function switchTab(tab) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
+  let tabEl = document.getElementById('tab-' + tab);
+  if(tabEl) tabEl.classList.add('active');
   
   document.getElementById('view-home').style.display = 'none';
   document.getElementById('view-search').style.display = 'none';
@@ -175,7 +181,7 @@ function switchTab(tab) {
   }
 }
 
-// === ГЛАВНЫЙ ЭКРАН (РЕКОМЕНДАЦИИ) ===
+// === ГЛАВНАЯ ===
 function renderHome() {
   let html = `<div class="section-title">Жанры и настроения</div><div class="genres-grid">`;
   genres.forEach(g => {
@@ -184,17 +190,29 @@ function renderHome() {
   html += `</div>`;
 
   if (history.length > 0) {
+    homeHistory = history.slice(0, 5);
+    html += `<div class="section-title">Недавно прослушано</div><div class="h-scroll">`;
+    homeHistory.forEach((t, i) => {
+      html += `<div class="h-card" onclick="playFromHome('history', ${i})">
+        <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'">
+        <div class="t-title">${t.title}</div>
+        <div class="t-artist">${t.artist}</div>
+      </div>`;
+    });
+    html += `</div>`;
+    
     let lastArtist = history[0].artist;
-    html += `<div class="section-title">Потому что вы слушали ${lastArtist}</div>`;
-    html += `<div class="h-scroll" id="recommendations"><p style="color:#aaa">Загрузка...</p></div>`;
-    document.getElementById('home-content').innerHTML = html;
-    loadRecommendations(lastArtist);
-  } else {
-    html += `<div class="section-title">Недавно прослушано</div>`;
-    if (history.length === 0) {
-      html += `<p style="color:#aaa; font-size:14px;">Пока пусто. Включи любой трек, и здесь появятся рекомендации!</p>`;
+    if (lastArtist && lastArtist !== 'SoundCloud') {
+      html += `<div class="section-title">Потому что вы слушали ${lastArtist}</div><div class="h-scroll" id="recommendations"><p style="color:#aaa;padding:10px;">Загрузка...</p></div>`;
     }
-    document.getElementById('home-content').innerHTML = html;
+  } else {
+    html += `<p style="color:#aaa; font-size:14px; margin-top:20px;">Включи любой трек, и здесь появятся рекомендации!</p>`;
+  }
+  
+  document.getElementById('home-content').innerHTML = html;
+  
+  if (history.length > 0 && history[0].artist !== 'SoundCloud') {
+      loadRecommendations(history[0].artist);
   }
 }
 
@@ -204,23 +222,25 @@ async function loadRecommendations(artist) {
     let data = await r.json();
     if(data.error) return;
     
-    // Берем 5 треков, исключая то, что уже слушали
-    let recs = data.filter(t => !history.some(h => h.id === t.id)).slice(0, 5);
+    homeRecs = data.filter(t => !history.some(h => h.id === t.id)).slice(0, 5);
+    let recDiv = document.getElementById('recommendations');
     
-    document.getElementById('recommendations').innerHTML = recs.map((t, i) => {
-      return `<div class="h-card" onclick="playRecommendation('${encodeURIComponent(JSON.stringify(t))}')">
-        <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'">
-        <div class="t-title">${t.title}</div>
-        <div class="t-artist">${t.artist}</div>
-      </div>`;
-    }).join('');
-  } catch { document.getElementById('recommendations').innerHTML = `<p style="color:#aaa">Ошибка</p>`; }
+    if(recDiv) {
+        if(homeRecs.length === 0) { recDiv.innerHTML = '<p style="color:#aaa;padding:10px;">Пока нет новых рекомендаций</p>'; return; }
+        recDiv.innerHTML = homeRecs.map((t, i) => {
+          return `<div class="h-card" onclick="playFromHome('recs', ${i})">
+            <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'">
+            <div class="t-title">${t.title}</div>
+            <div class="t-artist">${t.artist}</div>
+          </div>`;
+        }).join('');
+    }
+  } catch {}
 }
 
-function playRecommendation(trackStr) {
-  let track = JSON.parse(decodeURIComponent(trackStr));
-  queue = [track];
-  playTrack(0);
+function playFromHome(type, index) {
+  queue = (type === 'recs') ? homeRecs : homeHistory;
+  playTrack(index);
 }
 
 function searchByGenre(query) {
@@ -229,9 +249,9 @@ function searchByGenre(query) {
   search();
 }
 
-// === ИЗБРАННОЕ И СКАЧАННОЕ ===
+// === БИБЛИОТЕКА ===
 function renderLibrary(tab) {
-  let data = tab === 'favs' ? favs : Object.values(downloads);
+  let data = tab === 'favs' ? favs : downloads;
   let title = tab === 'favs' ? 'Избранное' : 'Скачанные';
   
   if (data.length === 0) {
@@ -241,7 +261,7 @@ function renderLibrary(tab) {
 
   document.getElementById('list-library').innerHTML = `<div class="section-title">${title}</div>` + data.map((t, i) => {
     let isFav = favs.some(f => f.id === t.id);
-    let isDl = downloads[t.id];
+    let isDl = downloads.some(d => d.id === t.id);
     return `<div class="track">
       <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'" onclick="playFromLibrary('${tab}', ${i})">
       <div class="t-info" onclick="playFromLibrary('${tab}', ${i})">
@@ -249,13 +269,13 @@ function renderLibrary(tab) {
         <div class="t-artist">${t.artist}</div>
       </div>
       <button class="action-btn ${isFav ? 'active' : ''}" onclick="toggleFavItem(${i}, '${tab}', this)">${getHeartIcon(isFav)}</button>
-      <button class="action-btn" onclick="downloadTrackItem(${i}, '${tab}', this)">${isDl ? '✓' : getDlIcon()}</button>
+      <button class="action-btn" onclick="downloadTrackItem(${i}, '${tab}', this)">${isDl ? getCheckIcon() : getDlIcon()}</button>
     </div>`;
   }).join('');
 }
 
 function playFromLibrary(tab, index) {
-  let data = tab === 'favs' ? favs : Object.values(downloads);
+  let data = tab === 'favs' ? favs : downloads;
   queue = data; 
   playTrack(index);
 }
@@ -271,7 +291,7 @@ async function search() {
     queue = data;
     document.getElementById('list-search').innerHTML = `<div class="section-title">Результаты</div>` + queue.map((t, i) => {
       let isFav = favs.some(f => f.id === t.id);
-      let isDl = downloads[t.id];
+      let isDl = downloads.some(d => d.id === t.id);
       return `<div class="track">
         <img src="${t.thumb || defaultImg}" onerror="this.src='${defaultImg}'" onclick="playTrack(${i})">
         <div class="t-info" onclick="playTrack(${i})">
@@ -279,7 +299,7 @@ async function search() {
           <div class="t-artist">${t.artist}</div>
         </div>
         <button class="action-btn ${isFav ? 'active' : ''}" onclick="toggleFavSearch(${i}, this)">${getHeartIcon(isFav)}</button>
-        <button class="action-btn" onclick="downloadSearch(${i}, this)">${isDl ? '✓' : getDlIcon()}</button>
+        <button class="action-btn" onclick="downloadSearch(${i}, this)">${isDl ? getCheckIcon() : getDlIcon()}</button>
       </div>`;
     }).join('');
   } catch { document.getElementById('list-search').innerText = 'Ошибка сети'; }
@@ -299,7 +319,7 @@ function toggleFavSearch(index, btn) {
 }
 
 function toggleFavItem(index, tab, btn) {
-  let data = tab === 'favs' ? favs : Object.values(downloads);
+  let data = tab === 'favs' ? favs : downloads;
   let t = data[index];
   if (favs.some(f => f.id === t.id)) {
     favs = favs.filter(f => f.id !== t.id);
@@ -311,23 +331,24 @@ function toggleFavItem(index, tab, btn) {
   localStorage.setItem('favs', JSON.stringify(favs));
 }
 
-function downloadSearch(index, btn) {
-  let t = queue[index];
-  downloadAction(t, btn);
-}
+function downloadSearch(index, btn) { downloadAction(queue[index], btn); }
 function downloadTrackItem(index, tab, btn) {
-  let data = tab === 'favs' ? favs : Object.values(downloads);
+  let data = tab === 'favs' ? favs : downloads;
   downloadAction(data[index], btn);
 }
+
 function downloadAction(t, btn) {
   btn.innerHTML = '⏳';
   fetch('/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: t.id, url: t.url})})
   .then(r => r.json())
   .then(d => {
     if(d.error) throw new Error(d.error);
-    downloads[t.id] = d.file;
+    let existing = downloads.findIndex(x => x.id === t.id);
+    if (existing !== -1) downloads.splice(existing, 1);
+    t.file = d.file;
+    downloads.push(t);
     localStorage.setItem('downloads', JSON.stringify(downloads));
-    btn.innerHTML = '✓';
+    btn.innerHTML = getCheckIcon();
   }).catch(e => { alert(e.message); btn.innerHTML = getDlIcon(); });
 }
 
@@ -336,10 +357,9 @@ async function playTrack(index) {
   currentIndex = index; let t = queue[index];
   let imgSrc = t.thumb || defaultImg;
   
-  // Сохраняем в историю для рекомендаций!
   history = history.filter(h => h.id !== t.id);
   history.unshift(t);
-  history = history.slice(0, 20); // храним последние 20
+  history = history.slice(0, 20);
   localStorage.setItem('history', JSON.stringify(history));
   
   document.getElementById('full-player').style.display = 'flex';
@@ -352,13 +372,14 @@ async function playTrack(index) {
   
   syncFullPlayerFav();
   let fpDl = document.getElementById('fp-dl-btn');
-  fpDl.innerHTML = downloads[t.id] ? '✓' : getDlIcon();
+  let downloadedTrack = downloads.find(d => d.id === t.id);
+  fpDl.innerHTML = downloadedTrack ? getCheckIcon() : getDlIcon();
 
   let audio = document.getElementById('audio'); 
   audio.pause(); document.getElementById('main-play-btn').innerText = '⏳';
   
-  if (downloads[t.id]) {
-    audio.src = '/play/' + downloads[t.id];
+  if (downloadedTrack) {
+    audio.src = '/play/' + downloadedTrack.file;
     audio.load();
     audio.play().then(() => { 
       document.getElementById('main-play-btn').innerText = '❚❚'; 
@@ -380,16 +401,4 @@ async function playTrack(index) {
        });
        document.getElementById('fp-artist').innerText = t.artist; 
     } else { throw new Error('no stream'); }
-  } catch (e) {
-     try {
-        let r = await fetch('/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: t.id, url: t.url})});
-        let d = await r.json(); 
-        if(d.error) throw new Error(d.error);
-        downloads[t.id] = d.file;
-        localStorage.setItem('downloads', JSON.stringify(downloads));
-        fpDl.innerHTML = '✓';
-        audio.src = '/play/' + downloads[t.id]; 
-        audio.load();
-        audio.play().then(() => { 
-          document.getElementById('main-play-btn').innerText = '❚❚'; 
-          document.getElementById('mini-play-btn').
+  } cat
