@@ -1,21 +1,15 @@
 from flask import Flask, request, jsonify, send_from_directory, send_file
 from pathlib import Path
-import yt_dlp, os, time
+import yt_dlp, os
 
 BASE_DIR = Path(__file__).resolve().parent
 app = Flask(__name__, static_folder=str(BASE_DIR / 'static'))
-
 MUSIC_DIR = Path('/tmp/music')
 MUSIC_DIR.mkdir(parents=True, exist_ok=True)
 
-search_cache = {}
-CACHE_TIME = 600 
-
 @app.after_request
 def add_header(response):
-    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '-1'
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
 
 @app.route('/')
@@ -26,18 +20,15 @@ def index():
 def search():
     q = request.args.get('q', '').strip()
     if not q: return jsonify([])
-    if q in search_cache and time.time() - search_cache[q]['time'] < CACHE_TIME:
-        return jsonify(search_cache[q]['data'])
-    opts = {'quiet': True, 'extract_flat': True, 'playlistend': 15, 'socket_timeout': 5}
+    opts = {'quiet': True, 'extract_flat': True, 'playlistend': 10}
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
-            info = ydl.extract_info(f'scsearch15:{q}', download=False)
+            info = ydl.extract_info(f'scsearch10:{q}', download=False)
         res = []
         for e in info.get('entries', []):
             if not e: continue
             thumb = e['thumbnails'][-1]['url'] if e.get('thumbnails') else ''
             res.append({'id': str(e['id']), 'title': e['title'], 'url': e['url'], 'thumb': thumb, 'artist': e.get('uploader', 'SoundCloud')})
-        search_cache[q] = {'time': time.time(), 'data': res}
         return jsonify(res)
     except Exception as ex: return jsonify({'error': str(ex)})
 
@@ -53,12 +44,7 @@ def stream_url():
                 if f.get('acodec') != 'none' and f.get('vcodec') == 'none':
                     best_url = f['url']
             return jsonify({'stream_url': best_url})
-    except Exception as e: 
-        # --- ГЛАВНОЕ ИЗМЕНЕНИЕ: Ловим ошибку DRM и возвращаем понятный статус ---
-        error_msg = str(e)
-        if 'DRM protected' in error_msg:
-            return jsonify({'error': 'DRM_PROTECTED', 'message': 'Этот трек защищён от скачивания. Попробуйте другой.'}), 403
-        return jsonify({'error': str(e)}), 500
+    except Exception as e: return jsonify({'error': str(e)})
 
 @app.route('/download', methods=['POST'])
 def download():
@@ -66,22 +52,26 @@ def download():
     vid = str(d['id'])
     for f in os.listdir(MUSIC_DIR):
         if f.startswith(vid + '.'): return jsonify({'file': f})
-    opts = {'format': 'bestaudio[ext=m4a]/bestaudio', 'outtmpl': str(MUSIC_DIR / f'{vid}.%(ext)s'), 'quiet': True, 'noplaylist': True}
+    opts = {'format': 'bestaudio[ext=m4a]/bestaudio', 'outtmpl': str(MUSIC_DIR / f'{vid}.%(ext)s'), 'quiet': True}
     try:
         with yt_dlp.YoutubeDL(opts) as ydl: ydl.download([d['url']])
         for f in os.listdir(MUSIC_DIR):
             if f.startswith(vid + '.'): return jsonify({'file': f})
         return jsonify({'error': 'Файл не создался'})
-    except Exception as ex: 
-        error_msg = str(ex)
-        if 'DRM protected' in error_msg:
-            return jsonify({'error': 'DRM_PROTECTED', 'message': 'Скачивание запрещено: трек защищён DRM.'}), 403
-        return jsonify({'error': str(ex)}), 500
+    except Exception as ex: return jsonify({'error': str(ex)})
 
+# Стриминг для плеера (без скачивания)
 @app.route('/play/<f>')
 def play(f):
     p = MUSIC_DIR / f
     return send_file(p, conditional=True) if p.exists() else ("Not found", 404)
+
+# Скачивание файла на телефон
+@app.route('/download_file/<f>')
+def download_file(f):
+    p = MUSIC_DIR / f
+    if not p.exists(): return "Not found", 404
+    return send_file(p, as_attachment=True, download_name=f)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
