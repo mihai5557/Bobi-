@@ -8,7 +8,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { background: #121212; color: #fff; font-family: system-ui, sans-serif; padding: 15px; padding-bottom: 150px; }
 
-/* ПЛАШКА ОШИБКИ */
 #debug { display: none; position: fixed; top: 0; left: 0; right: 0; background: #ff0000; color: #fff; padding: 15px; z-index: 9999; font-size: 14px; text-align: center; word-break: break-all; }
 
 .top-bar { display: flex; align-items: center; margin-bottom: 15px; }
@@ -77,7 +76,8 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 <div class="header" id="search-header">
   <input id="q" placeholder="Что послушаем?">
-  <button id="btn-search">
+  <!-- Добавлен onclick прямо в HTML -->
+  <button id="btn-search" onclick="search()">
     <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="10" cy="10" r="7"></circle><line x1="21" y1="21" x2="15" y2="15"></line><path d="M10 7v5.5"></path><circle cx="8.5" cy="12.5" r="1.5" fill="#000" stroke="none"></circle><path d="M10 7l2-1"></path>
     </svg>
@@ -86,15 +86,16 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 <div id="list"></div>
 
-<div id="mini-player">
+<!-- onclick прямо в HTML -->
+<div id="mini-player" onclick="openFullPlayer()">
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
-  <button class="play-btn-mini" id="mini-play-btn">▶</button>
+  <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">▶</button>
 </div>
 
 <div id="full-player">
   <div class="fp-header">
-    <button class="back-btn" id="btn-close">
+    <button class="back-btn" onclick="closeFullPlayer()">
       <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
     </button>
   </div>
@@ -103,30 +104,30 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   <div class="fp-artist" id="fp-artist"></div>
   
   <div class="fp-actions">
-    <button id="fp-fav" class="fp-action-btn"></button>
-    <button id="fp-dl" class="fp-action-btn"></button>
+    <button id="fp-fav" class="fp-action-btn" onclick="toggleFav()"></button>
+    <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()"></button>
   </div>
 
   <div class="progress-container">
     <span id="time-current" class="time-text">0:00</span>
-    <input type="range" id="seekBar" value="0" min="0" max="100" step="0.1">
+    <input type="range" id="seekBar" value="0" min="0" max="100" step="0.1" oninput="seekAudio()">
     <span id="time-total" class="time-text">0:00</span>
   </div>
   <div class="controls">
-    <button class="ctrl-btn" id="btn-prev">⏮</button>
-    <button class="play-btn-main" id="main-play-btn">▶</button>
-    <button class="ctrl-btn" id="btn-next">⏭</button>
+    <button class="ctrl-btn" onclick="playPrev()">⏮</button>
+    <button class="play-btn-main" id="main-play-btn" onclick="togglePlay()">▶</button>
+    <button class="ctrl-btn" onclick="playNext()">⏭</button>
   </div>
 </div>
 
 <div class="navbar">
-  <div class="nav-item active" id="tab-home">
+  <div class="nav-item active" id="tab-home" onclick="switchTab('home')">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главная
   </div>
-  <div class="nav-item" id="tab-favs">
+  <div class="nav-item" id="tab-favs" onclick="switchTab('favs')">
     <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Избранное
   </div>
-  <div class="nav-item" id="tab-downloads">
+  <div class="nav-item" id="tab-downloads" onclick="switchTab('downloads')">
     <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>Скачанные
   </div>
 </div>
@@ -134,7 +135,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio"></audio>
 
 <script>
-// Ловушка ошибок
 window.onerror = function(msg, url, line) {
   var d = document.getElementById('debug');
   d.style.display = 'block';
@@ -149,21 +149,6 @@ var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
 try { var h = localStorage.getItem('playHistory'); if(h) playHistory = JSON.parse(h); } catch(e) {}
-
-// Привязка кнопок
-document.getElementById('btn-search').onclick = function() { search(); };
-document.getElementById('tab-home').onclick = function() { switchTab('home'); };
-document.getElementById('tab-favs').onclick = function() { switchTab('favs'); };
-document.getElementById('tab-downloads').onclick = function() { switchTab('downloads'); };
-document.getElementById('btn-close').onclick = function() { document.getElementById('full-player').style.display = 'none'; };
-document.getElementById('main-play-btn').onclick = function() { togglePlay(); };
-document.getElementById('mini-play-btn').onclick = function(e) { e.stopPropagation(); togglePlay(); };
-document.getElementById('mini-player').onclick = function() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; };
-document.getElementById('btn-next').onclick = function() { playNext(); };
-document.getElementById('btn-prev').onclick = function() { playPrev(); };
-document.getElementById('fp-fav').onclick = function() { toggleFav(); };
-document.getElementById('fp-dl').onclick = function() { downloadCurrent(); };
-document.getElementById('seekBar').oninput = function() { var a = document.getElementById('audio'); if(a.duration) a.currentTime = (this.value / 100) * a.duration; };
 
 var audio = document.getElementById('audio');
 audio.ontimeupdate = function() {
@@ -256,21 +241,26 @@ function drawTracks(data) {
       var isFav = false; for(var j=0; j<favs.length; j++) { if(favs[j].id === track.id) isFav = true; }
       var isDl = false; for(var k=0; k<downloads.length; k++) { if(downloads[k].id === track.id) isDl = true; }
       
-      div.innerHTML = '<img src="'+(track.thumb||defaultImg)+'" onerror="this.src=\''+defaultImg+'\'">' +
-                      '<div class="t-info"><div class="t-title">'+track.title+'</div><div class="t-artist">'+track.artist+'</div></div>' +
-                      '<button class="action-btn '+(isFav?'active':'')+'">'+(isFav?getHeartIcon(true):getHeartIcon(false))+'</button>' +
-                      '<button class="action-btn">'+(isDl?getCheckIcon():getDlIcon())+'</button>';
-      
-      div.querySelector('img').onclick = function() { queue = data; playTrack(index); };
-      div.querySelector('.t-info').onclick = function() { queue = data; playTrack(index); };
-      
-      var btns = div.querySelectorAll('.action-btn');
-      btns[0].onclick = function(e) { e.stopPropagation(); toggleFavTrack(track, this); };
-      btns[1].onclick = function(e) { e.stopPropagation(); downloadTrack(track, this); };
+      div.innerHTML = '<img src="'+(track.thumb||defaultImg)+'" onerror="this.src=\''+defaultImg+'\'" onclick="playFromTrackList('+index+')">' +
+                      '<div class="t-info" onclick="playFromTrackList('+index+')"><div class="t-title">'+track.title+'</div><div class="t-artist">'+track.artist+'</div></div>' +
+                      '<button class="action-btn '+(isFav?'active':'')+'" onclick="toggleFavTrackByIndex('+index+', this)">'+(isFav?getHeartIcon(true):getHeartIcon(false))+'</button>' +
+                      '<button class="action-btn" onclick="downloadTrackByIndex('+index+', this)">'+(isDl?getCheckIcon():getDlIcon())+'</button>';
       
       list.appendChild(div);
+      window.currentTrackList = data;
     })(i, data[i]);
   }
+}
+
+function playFromTrackList(index) {
+  queue = window.currentTrackList;
+  playTrack(index);
+}
+function toggleFavTrackByIndex(index, btn) {
+  toggleFavTrack(window.currentTrackList[index], btn);
+}
+function downloadTrackByIndex(index, btn) {
+  downloadTrack(window.currentTrackList[index], btn);
 }
 
 function search() {
@@ -280,7 +270,7 @@ function search() {
   .then(function(r) { return r.json(); })
   .then(function(data) {
     if(data.error) { document.getElementById('list').innerText = data.error; return; }
-    queue = data;
+    window.currentTrackList = data;
     document.getElementById('list').innerHTML = '<div class="section-title">Результаты</div>';
     drawTracks(data);
   }).catch(function() { document.getElementById('list').innerText = 'Ошибка сети (Сервер спит)'; });
@@ -364,4 +354,13 @@ function togglePlay() {
   else { a.pause(); document.getElementById('main-play-btn').innerText = '▶'; document.getElementById('mini-play-btn').innerText = '▶'; }
 }
 function toggleFav() { if(currentIndex !== -1) toggleFavTrack(queue[currentIndex], document.getElementById('fp-fav')); }
-function downloadCurrent() { if(currentIndex !== -1) downloadTrack(queue[currentIndex], docu
+function downloadCurrent() { if(currentIndex !== -1) downloadTrack(queue[currentIndex], document.getElementById('fp-dl')); }
+function playNext() { if(queue.length) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
+function playPrev() { if(queue.length) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
+function openFullPlayer() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; }
+function closeFullPlayer() { document.getElementById('full-player').style.display = 'none'; }
+function seekAudio() { var a = document.getElementById('audio'); if(a.duration) a.currentTime = (document.getElementById('seekBar').value / 100) * a.duration; }
+
+function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+function getHeartIcon(active) {
+  if (active) return '<s
