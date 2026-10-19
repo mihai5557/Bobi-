@@ -11,6 +11,9 @@ body { background: #121212; color: #fff; font-family: system-ui, sans-serif; pad
 input { padding: 12px; border-radius: 20px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
 .btn-search { padding: 12px 20px; border-radius: 20px; border: none; background: #1ed760; font-weight: bold; color: #000; cursor: pointer;}
 
+/* Плашка для ошибок */
+#debug { display: none; position: fixed; top: 0; left: 0; right: 0; background: #ff3333; color: #fff; padding: 10px; z-index: 9999; font-size: 12px; text-align: center; }
+
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 .genres-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
 .genre-card { padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; height: 80px; display: flex; align-items: flex-start; }
@@ -57,18 +60,19 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </head>
 <body>
 
-<!-- ЖАНРЫ СРАЗУ В HTML (БЕЗ JS) -->
+<div id="debug"></div>
+
 <div id="view-home" style="display:block;">
   <div class="section-title">Жанры и настроения</div>
   <div class="genres-grid">
-    <div class="genre-card" style="background:#ba5d07" onclick="searchByGenre('rap hits')">Рэп</div>
-    <div class="genre-card" style="background:#8d67ab" onclick="searchByGenre('pop music')">Поп</div>
-    <div class="genre-card" style="background:#148a08" onclick="searchByGenre('phonk')">Фонк</div>
-    <div class="genre-card" style="background:#e91429" onclick="searchByGenre('rock classics')">Рок</div>
-    <div class="genre-card" style="background:#503750" onclick="searchByGenre('lofi beats')">Lo-Fi</div>
-    <div class="genre-card" style="background:#dc148c" onclick="searchByGenre('indie music')">Инди</div>
-    <div class="genre-card" style="background:#0d72ea" onclick="searchByGenre('hip hop')">Хип-Хоп</div>
-    <div class="genre-card" style="background:#e8115b" onclick="searchByGenre('jazz')">Джаз</div>
+    <div class="genre-card" style="background:#ba5d07" data-query="rap hits">Рэп</div>
+    <div class="genre-card" style="background:#8d67ab" data-query="pop music">Поп</div>
+    <div class="genre-card" style="background:#148a08" data-query="phonk">Фонк</div>
+    <div class="genre-card" style="background:#e91429" data-query="rock classics">Рок</div>
+    <div class="genre-card" style="background:#503750" data-query="lofi beats">Lo-Fi</div>
+    <div class="genre-card" style="background:#dc148c" data-query="indie music">Инди</div>
+    <div class="genre-card" style="background:#0d72ea" data-query="hip hop">Хип-Хоп</div>
+    <div class="genre-card" style="background:#e8115b" data-query="jazz">Джаз</div>
   </div>
 </div>
 
@@ -114,16 +118,16 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </div>
 
 <div class="navbar">
-  <div class="nav-item active" onclick="switchTab('home')" id="tab-home">
+  <div class="nav-item active" id="tab-home">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главная
   </div>
-  <div class="nav-item" onclick="switchTab('search')" id="tab-search">
+  <div class="nav-item" id="tab-search">
     <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>Поиск
   </div>
-  <div class="nav-item" onclick="switchTab('favs')" id="tab-favs">
+  <div class="nav-item" id="tab-favs">
     <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Избранное
   </div>
-  <div class="nav-item" onclick="switchTab('downloads')" id="tab-downloads">
+  <div class="nav-item" id="tab-downloads">
     <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Скачанные
   </div>
 </div>
@@ -131,6 +135,13 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio" ontimeupdate="updateProgress()" onended="playNext()"></audio>
 
 <script>
+// Ловушка для ошибок (покажет красную плашку, если что-то сломается)
+window.onerror = function(msg, url, line) {
+    var dbg = document.getElementById('debug');
+    if(dbg) { dbg.style.display = 'block'; dbg.innerText = "Ошибка: " + msg + " (строка " + line + ")"; }
+    return false;
+};
+
 function getStorage(key) {
     try { 
         var item = localStorage.getItem(key); 
@@ -145,6 +156,22 @@ var currentIndex = -1;
 var favs = getStorage('favs');
 var downloads = getStorage('downloads');
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
+
+// Безопасная привязка кнопок
+window.onload = function() {
+    document.getElementById('tab-home').onclick = function() { switchTab('home'); };
+    document.getElementById('tab-search').onclick = function() { switchTab('search'); };
+    document.getElementById('tab-favs').onclick = function() { switchTab('favs'); };
+    document.getElementById('tab-downloads').onclick = function() { switchTab('downloads'); };
+
+    var genreCards = document.querySelectorAll('.genre-card');
+    for(var i=0; i<genreCards.length; i++) {
+        genreCards[i].onclick = function() {
+            var query = this.getAttribute('data-query');
+            searchByGenre(query);
+        };
+    }
+};
 
 function switchTab(tab) {
   var navs = document.querySelectorAll('.nav-item');
@@ -372,30 +399,4 @@ function syncFullPlayerFav() {
   var isFav = false;
   for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) isFav = true; }
   var fpFav = document.getElementById('fp-fav-btn');
-  if(isFav) fpFav.classList.add('active'); else fpFav.classList.remove('active');
-  fpFav.innerHTML = getHeartIcon(isFav);
-}
-
-function toggleFavFull() {
-  if(currentIndex === -1) return;
-  var t = queue[currentIndex];
-  var found = -1;
-  for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) found = i; }
-  
-  if (found !== -1) favs.splice(found, 1);
-  else favs.push(t);
-  localStorage.setItem('favs', JSON.stringify(favs));
-  syncFullPlayerFav();
-}
-
-function downloadFull() {
-  if(currentIndex === -1) return;
-  downloadAction(queue[currentIndex], document.getElementById('fp-dl-btn'));
-}
-
-function togglePlay() {
-  var a = document.getElementById('audio'); if(!a.src) return;
-  if(a.paused) { a.play(); document.getElementById('main-play-btn').innerText = '❚❚'; document.getElementById('mini-play-btn').innerText = '❚❚'; }
-  else { a.pause(); document.getElementById('main-play-btn').innerText = '▶'; document.getElementById('mini-play-btn').innerText = '▶'; }
-}
-function playNext() { if(que
+  if(isFav) fpFav.classList.add('active'); else fpFav.classList.remove('active
