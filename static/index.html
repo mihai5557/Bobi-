@@ -11,6 +11,9 @@ body { background: #121212; color: #fff; font-family: system-ui, sans-serif; pad
 input { padding: 12px; border-radius: 20px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
 .btn-search { padding: 12px 20px; border-radius: 20px; border: none; background: #1ed760; font-weight: bold; color: #000; cursor: pointer;}
 
+/* Экран ошибки (для отладки) */
+#error-screen { display: none; position: fixed; top: 0; left: 0; right: 0; background: #ff0000; color: white; padding: 15px; z-index: 9999; font-size: 14px; word-wrap: break-word; }
+
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 .genres-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
 .genre-card { padding: 15px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; height: 80px; display: flex; align-items: flex-start; }
@@ -62,6 +65,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 </style>
 </head>
 <body>
+
+<!-- КРАСНЫЙ ЭКРАН ДЛЯ ОШИБОК -->
+<div id="error-screen"></div>
 
 <div id="view-search" style="display:none;">
   <div class="header">
@@ -126,6 +132,16 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio" ontimeupdate="updateProgress()" onended="playNext()"></audio>
 
 <script>
+// Ловушка для ошибок
+window.onerror = function(msg, url, line, col, error) {
+    var el = document.getElementById('error-screen');
+    if(el) {
+        el.style.display = 'block';
+        el.innerHTML = "ОШИБКА: " + msg + "<br>Строка: " + line;
+    }
+    return false;
+};
+
 function safeParse(key, fallback) {
     try { 
         var v = localStorage.getItem(key); 
@@ -371,20 +387,4 @@ function playTrack(index) {
   
   if (downloadedTrack) {
     audio.src = '/play/' + downloadedTrack.file;
-    audio.load();
-    audio.play().then(function() { 
-      document.getElementById('main-play-btn').innerText = '❚❚'; 
-      document.getElementById('mini-play-btn').innerText = '❚❚'; 
-    });
-    document.getElementById('fp-artist').innerText = t.artist; 
-    return;
-  }
-
-  fetch('/stream_url?url=' + encodeURIComponent(t.url))
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    if (d.stream_url) {
-       audio.src = d.stream_url;
-       audio.load();
-       audio.play().then(function() { 
-         document.getElementById('main-play-btn').
+    aud
