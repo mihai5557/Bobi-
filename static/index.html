@@ -6,60 +6,59 @@
 <meta name="theme-color" content="#121212">
 <title>Bobify</title>
 <style>
-/* Убрали блокировку кликов, добавили pointer-events: none для SVG */
+/* Убрали user-select и pointer-events, чтобы не блокировать клики */
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { background: #121212; color: #fff; font-family: system-ui, -apple-system, sans-serif; padding: 15px; padding-bottom: 150px; }
-input { -webkit-user-select: text; user-select: text; }
+body { background: #121212; color: #fff; font-family: system-ui, -apple-system, sans-serif; padding: 15px; padding-bottom: 160px; }
 
 /* Шапка */
 .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .logo { font-size: 24px; font-weight: 900; letter-spacing: 1px; color: #1ed760; text-transform: uppercase; }
-.download-app-btn { background: #1ed760; color: #000; text-decoration: none; padding: 8px 14px; border-radius: 20px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 6px;}
-.download-app-btn svg { width: 16px; height: 16px; fill: currentColor; pointer-events: none; }
+.download-app-btn { background: #1ed760; color: #000; text-decoration: none; padding: 8px 14px; border-radius: 20px; font-weight: bold; font-size: 14px; }
 
 /* Поиск */
 .header { display: flex; gap: 10px; margin-bottom: 25px; align-items: center; }
 input { padding: 14px 18px; border-radius: 30px; border: none; background: #242424; color: #fff; flex: 1; font-size: 16px; outline: none; }
 #btn-search { background: #1ed760; border: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-#btn-search svg { width: 24px; height: 24px; fill: #000; pointer-events: none; }
+/* Иконка поиска на CSS */
+.search-icon { width: 16px; height: 16px; border: 3px solid #000; border-radius: 50%; position: relative; }
+.search-icon::after { content: ''; position: absolute; top: 12px; left: 10px; width: 3px; height: 10px; background: #000; transform: rotate(-45deg); }
 
 /* Списки */
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 .track { display: flex; align-items: center; gap: 12px; padding: 12px 5px; border-radius: 8px; border-bottom: 1px solid #282828; cursor: pointer; }
 .track:active { background: #282828; }
-.track img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #333; pointer-events: none; }
-.track-info { flex: 1; min-width: 0; pointer-events: none; }
+.track img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #333; }
+.track-info { flex: 1; min-width: 0; }
 .t-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-artist { font-size: 13px; color: #aaa; }
-.action-btn { background: none; border: none; padding: 8px; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;}
-.action-btn svg { width: 22px; height: 22px; pointer-events: none; }
+.action-btn { background: none; border: none; padding: 8px; color: #aaa; cursor: pointer; font-size: 14px; font-weight: bold; }
 .action-btn.active { color: #1ed760; }
 
 /* Нижнее меню */
-.navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #282828; z-index: 50; }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 11px; cursor: pointer; gap: 4px; padding: 5px 15px; font-weight: 500;}
+.navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 15px 0 calc(15px + env(safe-area-inset-bottom)); border-top: 1px solid #282828; z-index: 50; }
+.nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 12px; cursor: pointer; gap: 4px; font-weight: bold; letter-spacing: 0.5px;}
 .nav-item.active { color: #fff; }
-.nav-item svg { width: 24px; height: 24px; fill: currentColor; pointer-events: none; }
 
 /* Мини-плеер */
 #mini-player { display: none; position: fixed; bottom: 75px; left: 8px; right: 8px; background: #181818; padding: 10px 15px; align-items: center; gap: 12px; border-radius: 8px; z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.5); cursor: pointer;}
-#mini-player img { width: 40px; height: 40px; border-radius: 4px; pointer-events: none;}
-.m-info { flex: 1; min-width: 0; pointer-events: none;}
+#mini-player img { width: 40px; height: 40px; border-radius: 4px; }
+.m-info { flex: 1; min-width: 0; }
 .m-title { font-size: 14px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #000;}
-.play-btn-mini svg { width: 18px; height: 18px; fill: currentColor; pointer-events: none; }
+.play-btn-mini { background: #1ed760; border: none; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+/* Иконки Play/Pause на CSS */
+.icon-play { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 10px solid #000; display: inline-block; margin-left: 2px; }
+.icon-pause { width: 8px; height: 12px; border-left: 3px solid #000; border-right: 3px solid #000; display: inline-block; }
 
 /* Большой плеер */
 #full-player { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(180deg, #2a2a2a 0%, #121212 100%); z-index: 100; padding: 20px; flex-direction: column; padding-top: 40px; }
 .fp-header { display: flex; margin-bottom: 20px; }
-.back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.back-btn svg { pointer-events: none; }
-.fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: none;}
+.back-btn { background: rgba(0,0,0,0.6); color: white; border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .fp-artist { font-size: 16px; color: #aaa; margin-bottom: 20px; text-align: center; }
 .fp-actions { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; }
-.fp-action-btn { background: rgba(255,255,255,0.1); border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
-.fp-action-btn svg { width: 24px; height: 24px; pointer-events: none; }
+.fp-action-btn { background: rgba(255,255,255,0.1); border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-size: 16px; font-weight: bold;}
 .fp-action-btn.active { color: #1ed760; }
 
 /* Ползунок */
@@ -71,28 +70,22 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 /* Управление */
 .controls { display: flex; justify-content: center; align-items: center; gap: 30px; }
-.ctrl-btn { background: none; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;}
-.ctrl-btn svg { width: 32px; height: 32px; fill: white; pointer-events: none; }
-.play-btn-main { background: #1ed760; color: black; border: none; width: 72px; height: 72px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(30, 215, 96, 0.3);}
-.play-btn-main svg { width: 32px; height: 32px; fill: currentColor; pointer-events: none; transform: translateX(2px); }
-.play-btn-main.playing svg { transform: translateX(0); }
+.ctrl-btn { background: none; border: none; color: white; cursor: pointer; font-size: 24px; font-weight: bold;}
+.main-play-btn { background: #1ed760; color: black; border: none; width: 72px; height: 72px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 4px 15px rgba(30, 215, 96, 0.3);}
+.main-play-btn .icon-play { border-top-width: 10px; border-bottom-width: 10px; border-left-width: 16px; margin-left: 4px; }
+.main-play-btn .icon-pause { width: 14px; height: 20px; border-left-width: 5px; border-right-width: 5px; }
 </style>
 </head>
 <body>
 
 <div class="top-bar">
   <div class="logo">BOBIFY</div>
-  <a href="https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk" class="download-app-btn">
-    <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-    Скачать
-  </a>
+  <a href="https://github.com/mihai5557/Bobi-/releases/download/V1.0/Bobify.apk" class="download-app-btn">Скачать</a>
 </div>
 
 <div class="header" id="search-header">
   <input id="q" placeholder="Что послушаем?">
-  <button id="btn-search" onclick="doSearch()">
-    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-  </button>
+  <button id="btn-search" onclick="doSearch()"><div class="search-icon"></div></button>
 </div>
 
 <div id="view-search"><div id="list-search"></div></div>
@@ -103,27 +96,21 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   <img id="mini-thumb" src="">
   <div class="m-info"><div class="m-title" id="mini-title"></div></div>
   <button class="play-btn-mini" id="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">
-    <svg id="mini-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <span id="mini-play-icon" class="icon-play"></span>
   </button>
 </div>
 
 <div id="full-player">
   <div class="fp-header">
-    <button class="back-btn" onclick="document.getElementById('full-player').style.display='none'">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="white"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
-    </button>
+    <button class="back-btn" onclick="document.getElementById('full-player').style.display='none'">V</button>
   </div>
   <img id="fp-thumb" class="fp-cover" src="">
   <div class="fp-title" id="fp-title"></div>
   <div class="fp-artist" id="fp-artist"></div>
   
   <div class="fp-actions">
-    <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()">
-      <svg id="fp-fav-icon" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-    </button>
-    <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()">
-      <svg id="fp-dl-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-    </button>
+    <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()">+</button>
+    <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()">DL</button>
   </div>
 
   <div class="progress-container">
@@ -133,28 +120,18 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   </div>
   
   <div class="controls">
-    <button class="ctrl-btn" onclick="playPrev()">
-      <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+    <button class="ctrl-btn" onclick="playPrev()">PREV</button>
+    <button class="main-play-btn" id="main-play-btn" onclick="togglePlay()">
+      <span id="main-play-icon" class="icon-play"></span>
     </button>
-    <button class="play-btn-main" id="main-play-btn" onclick="togglePlay()">
-      <svg id="main-play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-    </button>
-    <button class="ctrl-btn" onclick="playNext()">
-      <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-    </button>
+    <button class="ctrl-btn" onclick="playNext()">NEXT</button>
   </div>
 </div>
 
 <div class="navbar">
-  <div class="nav-item active" id="tab-search" onclick="switchTab('search')">
-    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главная
-  </div>
-  <div class="nav-item" id="tab-favs" onclick="switchTab('favs')">
-    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Избранное
-  </div>
-  <div class="nav-item" id="tab-downloads" onclick="switchTab('downloads')">
-    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>Скачанные
-  </div>
+  <div class="nav-item active" id="tab-search" onclick="switchTab('search')">ГЛАВНАЯ</div>
+  <div class="nav-item" id="tab-favs" onclick="switchTab('favs')">ИЗБРАННОЕ</div>
+  <div class="nav-item" id="tab-downloads" onclick="switchTab('downloads')">СКАЧАННЫЕ</div>
 </div>
 
 <audio id="audio"></audio>
@@ -164,14 +141,6 @@ var queue = [], currentIndex = -1;
 var favs = [], downloads = [];
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
-// Иконки для кнопок
-var iconPlay = '<path d="M8 5v14l11-7z"/>';
-var iconPause = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-var iconHeart = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>';
-var iconHeartFill = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#1ed760" stroke="#1ed760" stroke-width="2"/>';
-var iconDl = '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" fill="none" stroke="currentColor" stroke-width="2"/>';
-var iconCheck = '<path d="M20 6L9 17l-5-5" fill="none" stroke="#1ed760" stroke-width="2"/>';
-
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
 
@@ -179,14 +148,12 @@ var audio = document.getElementById('audio');
 
 audio.addEventListener('ended', function() { playNext(); });
 audio.addEventListener('play', function() {
-    document.getElementById('main-play-icon').innerHTML = iconPause;
-    document.getElementById('main-play-btn').classList.add('playing');
-    document.getElementById('mini-play-icon').innerHTML = iconPause;
+    document.getElementById('main-play-icon').className = 'icon-pause';
+    document.getElementById('mini-play-icon').className = 'icon-pause';
 });
 audio.addEventListener('pause', function() {
-    document.getElementById('main-play-icon').innerHTML = iconPlay;
-    document.getElementById('main-play-btn').classList.remove('playing');
-    document.getElementById('mini-play-icon').innerHTML = iconPlay;
+    document.getElementById('main-play-icon').className = 'icon-play';
+    document.getElementById('mini-play-icon').className = 'icon-play';
 });
 audio.addEventListener('timeupdate', function() {
   if(!audio.duration || audio.duration === Infinity) return;
@@ -232,8 +199,8 @@ function renderList(containerId, data, title) {
     html += '<div class="track" onclick="playTrackFromList(\'' + containerId + '\', ' + i + ')">' +
             '<img src="' + (t.thumb || defaultImg) + '">' +
             '<div class="track-info"><div class="t-title">' + safeTitle + '</div><div class="t-artist">' + safeArtist + '</div></div>' +
-            '<button class="action-btn ' + (isFav?'active':'') + '" onclick="event.stopPropagation(); toggleFav(\'' + containerId + '\', ' + i + ', this)"><svg viewBox="0 0 24 24">' + (isFav?iconHeartFill:iconHeart) + '</svg></button>' +
-            '<button class="action-btn" onclick="event.stopPropagation(); downloadTrack(\'' + containerId + '\', ' + i + ', this)"><svg viewBox="0 0 24 24">' + (isDl?iconCheck:iconDl) + '</svg></button>' +
+            '<button class="action-btn ' + (isFav?'active':'') + '" onclick="event.stopPropagation(); toggleFav(\'' + containerId + '\', ' + i + ', this)">' + (isFav?'❤':'+') + '</button>' +
+            '<button class="action-btn" onclick="event.stopPropagation(); downloadTrack(\'' + containerId + '\', ' + i + ', this)">' + (isDl?'OK':'DL') + '</button>' +
             '</div>';
   }
   container.innerHTML = html;
@@ -275,20 +242,13 @@ function toggleFav(containerId, index, btn) {
   else if(containerId === 'list-downloads') track = downloads[index];
   
   var idx = -1; for(var i=0; i<favs.length; i++) { if(favs[i].id === track.id) idx = i; }
-  if(idx !== -1) { 
-      favs.splice(idx, 1); 
-      btn.className = 'action-btn'; 
-      btn.innerHTML = '<svg viewBox="0 0 24 24">' + iconHeart + '</svg>'; 
-  } else { 
-      favs.push(track); 
-      btn.className = 'action-btn active'; 
-      btn.innerHTML = '<svg viewBox="0 0 24 24">' + iconHeartFill + '</svg>'; 
-  }
+  if(idx !== -1) { favs.splice(idx, 1); btn.innerText = '+'; btn.className = 'action-btn'; }
+  else { favs.push(track); btn.innerText = '❤'; btn.className = 'action-btn active'; }
   localStorage.setItem('favs', JSON.stringify(favs));
   
   if(currentIndex !== -1 && queue[currentIndex].id === track.id) {
     var isF = idx === -1;
-    document.getElementById('fp-fav-icon').innerHTML = isF ? iconHeartFill : iconHeart;
+    document.getElementById('fp-fav').innerText = isF ? '❤' : '+';
     document.getElementById('fp-fav').className = 'fp-action-btn ' + (isF?'active':'');
   }
 }
@@ -299,8 +259,7 @@ function downloadTrack(containerId, index, btn) {
   else if(containerId === 'list-favs') track = favs[index];
   else if(containerId === 'list-downloads') track = downloads[index];
   
-  btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2v4l2.3-2.3L12 2z" fill="currentColor"/></svg>';
-  
+  btn.innerText = '...';
   var xhr = new XMLHttpRequest();
   xhr.open('POST', '/download', true);
   xhr.setRequestHeader('Content-Type', 'application/json');
@@ -315,12 +274,12 @@ function downloadTrack(containerId, index, btn) {
           if(idx !== -1) downloads.splice(idx, 1);
           downloads.push(track);
           localStorage.setItem('downloads', JSON.stringify(downloads));
-          btn.innerHTML = '<svg viewBox="0 0 24 24">' + iconCheck + '</svg>';
+          btn.innerText = 'OK';
           if(currentIndex !== -1 && queue[currentIndex].id === track.id) {
-            document.getElementById('fp-dl-icon').innerHTML = iconCheck;
+            document.getElementById('fp-dl').innerText = 'OK';
           }
-        } catch(e) { alert(e.message); btn.innerHTML = '<svg viewBox="0 0 24 24">' + iconDl + '</svg>'; }
-      } else { alert('Ошибка сети'); btn.innerHTML = '<svg viewBox="0 0 24 24">' + iconDl + '</svg>'; }
+        } catch(e) { alert(e.message); btn.innerText = 'DL'; }
+      } else { alert('Ошибка сети'); btn.innerText = 'DL'; }
     }
   };
   xhr.send(JSON.stringify({id: track.id, url: track.url}));
@@ -341,5 +300,50 @@ function playTrack(index) {
   document.getElementById('fp-artist').innerText = 'Загрузка...';
   
   var isF = false; for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) isF = true; }
-  document.getElementById('fp-fav-icon').innerHTML = isF ? iconHeartFill : iconHeart;
-  document.getElementById('fp-fav').className = 'fp-a
+  document.getElementById('fp-fav').innerText = isF ? '❤' : '+';
+  document.getElementById('fp-fav').className = 'fp-action-btn ' + (isF?'active':'');
+  
+  var isD = false; for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) isD = true; }
+  document.getElementById('fp-dl').innerText = isD ? 'OK' : 'DL';
+
+  audio.pause();
+  var downloaded = null;
+  for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) downloaded = downloads[i]; }
+
+  if (downloaded) {
+    audio.src = '/play/' + downloaded.file; 
+    audio.load(); audio.play();
+    document.getElementById('fp-artist').innerText = t.artist;
+  } else {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/stream_url?url=' + encodeURIComponent(t.url), true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          try {
+            var d = JSON.parse(xhr.responseText);
+            if(d.stream_url) {
+              audio.src = d.stream_url; 
+              audio.load(); audio.play();
+              document.getElementById('fp-artist').innerText = t.artist;
+            } else throw new Error('Нет потока');
+          } catch(e) { alert('Ошибка воспроизведения'); }
+        } else { alert('Ошибка сети'); }
+      }
+    };
+    xhr.send();
+  }
+}
+
+function playNext() { if(queue && queue.length > 0) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
+function playPrev() { if(queue && queue.length > 0) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
+function togglePlay() { if(!audio.src) return; if(audio.paused) audio.play(); else audio.pause(); }
+function toggleFavCurrent() { if(currentIndex !== -1) toggleFav('list-search', currentIndex, document.getElementById('fp-fav')); }
+function downloadCurrent() { if(currentIndex !== -1) downloadTrack('list-search', currentIndex, document.getElementById('fp-dl')); }
+function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
+function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+switchTab('search');
+</script>
+</body>
+</html>
