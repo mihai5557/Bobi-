@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, send_file
+from flask import Flask, request, jsonify, send_from_directory, send_file, make_response
 from pathlib import Path
 import yt_dlp, os, time
 
@@ -10,6 +10,14 @@ MUSIC_DIR.mkdir(parents=True, exist_ok=True)
 
 search_cache = {}
 CACHE_TIME = 600 
+
+# ЭТА ФУНКЦИЯ ЗАПРЕЩАЕТ ТЕЛЕФОНУ КЭШИРОВАТЬ САЙТ
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
 
 @app.route('/')
 def index():
