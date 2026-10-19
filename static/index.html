@@ -21,22 +21,21 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 
 .section-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; margin-top: 15px; }
 
-.track { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; border-bottom: 1px solid #282828; }
+.track { display: flex; align-items: center; gap: 8px; padding: 12px 5px; border-radius: 8px; border-bottom: 1px solid #282828; }
 .track:active { background: #282828; }
 .track img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #333; }
 .track-info { flex: 1; min-width: 0; }
 .t-title { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .t-artist { font-size: 13px; color: #aaa; }
 
-/* ЖЕСТКИЕ РАЗМЕРЫ ДЛЯ КНОПОК */
-.action-btn { background: none; border: none; padding: 8px; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;}
-.action-btn svg { width: 24px; height: 24px; display: block; }
+.action-btn { background: none; border: none; padding: 6px; color: #aaa; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+.action-btn svg { width: 22px; height: 22px; display: block; }
 .action-btn.active { color: #1ed760; }
 
 .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #000; display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid #282828; z-index: 50; }
-.nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 11px; cursor: pointer; gap: 4px; padding: 5px 15px; }
+.nav-item { display: flex; flex-direction: column; align-items: center; color: #aaa; font-size: 10px; cursor: pointer; gap: 4px; padding: 5px; flex: 1;}
 .nav-item.active { color: #fff; }
-.nav-item svg { width: 24px; height: 24px; fill: currentColor; }
+.nav-item svg { width: 22px; height: 22px; fill: currentColor; }
 
 #mini-player { display: none; position: fixed; bottom: 70px; left: 8px; right: 8px; background: #181818; padding: 10px 15px; align-items: center; gap: 12px; border-radius: 8px; z-index: 40; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 #mini-player img { width: 40px; height: 40px; border-radius: 4px; background: #333; }
@@ -51,7 +50,7 @@ input { padding: 14px 18px; border-radius: 30px; border: none; background: #2424
 .fp-cover { width: 100%; max-width: 320px; margin: 0 auto 30px auto; aspect-ratio: 1; border-radius: 12px; object-fit: cover; display: block; background: #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
 .fp-title { font-size: 24px; font-weight: 800; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .fp-artist { font-size: 16px; color: #aaa; margin-bottom: 20px; text-align: center; }
-.fp-actions { display: flex; justify-content: center; gap: 25px; margin-bottom: 20px; }
+.fp-actions { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
 .fp-action-btn { background: rgba(255,255,255,0.1); border: none; width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
 .fp-action-btn svg { width: 24px; height: 24px; display: block; }
 .fp-action-btn.active { color: #1ed760; }
@@ -85,6 +84,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <div id="view-search" style="display:none;"><div id="list-search"></div></div>
 <div id="view-favs" style="display:none;"><div id="list-favs"></div></div>
 <div id="view-downloads" style="display:none;"><div id="list-downloads"></div></div>
+<div id="view-playlists" style="display:none;"><div id="list-playlists"></div></div>
 
 <div id="mini-player" onclick="openFullPlayer()">
   <img id="mini-thumb" src="">
@@ -106,6 +106,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   
   <div class="fp-actions">
     <button id="fp-fav" class="fp-action-btn" onclick="toggleFavCurrent()"></button>
+    <button id="fp-add" class="fp-action-btn" onclick="addCurrentToPlaylist()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
     <button id="fp-dl" class="fp-action-btn" onclick="downloadCurrent()"></button>
   </div>
 
@@ -131,6 +134,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
   <div class="nav-item active" id="tab-search" onclick="switchTab('search')">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Главная
   </div>
+  <div class="nav-item" id="tab-playlists" onclick="switchTab('playlists')">
+    <svg viewBox="0 0 24 24"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3z"/></svg>Плейлисты
+  </div>
   <div class="nav-item" id="tab-favs" onclick="switchTab('favs')">
     <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>Избранное
   </div>
@@ -143,23 +149,24 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 
 <script>
 var queue = [], currentIndex = -1;
-var favs = [], downloads = [];
+var favs = [], downloads = [], playlists = {};
+var currentPlaylistView = null;
 var defaultImg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23777'><path d='M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z'/></svg>";
 
-// Иконки
 var iconPlay = '<path d="M8 5v14l11-7z"/>';
 var iconPause = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
 var iconDl = '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" fill="none" stroke="currentColor" stroke-width="2"/>';
 var iconCheck = '<path d="M20 6L9 17l-5-5" fill="none" stroke="#1ed760" stroke-width="2"/>';
 var iconHeart = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>';
 var iconHeartFill = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="#1ed760" stroke="#1ed760" stroke-width="2"/>';
+var iconAdd = '<path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2"/>';
 
 try { var f = localStorage.getItem('favs'); if(f) favs = JSON.parse(f); } catch(e) {}
 try { var d = localStorage.getItem('downloads'); if(d) downloads = JSON.parse(d); } catch(e) {}
+try { var p = localStorage.getItem('playlists'); if(p) playlists = JSON.parse(p); } catch(e) {}
 
 var audio = document.getElementById('audio');
 
-// ГЛАВНЫЙ ФИКС: Иконки меняются ТОЛЬКО по событиям плеера
 audio.onplay = function() {
   document.getElementById('main-play-icon').innerHTML = iconPause;
   document.getElementById('mini-play-icon').innerHTML = iconPause;
@@ -171,11 +178,13 @@ audio.onpause = function() {
 
 function switchTab(tab) {
   document.getElementById('tab-search').className = 'nav-item';
+  document.getElementById('tab-playlists').className = 'nav-item';
   document.getElementById('tab-favs').className = 'nav-item';
   document.getElementById('tab-downloads').className = 'nav-item';
   document.getElementById('tab-' + tab).className = 'nav-item active';
   
   document.getElementById('view-search').style.display = 'none';
+  document.getElementById('view-playlists').style.display = 'none';
   document.getElementById('view-favs').style.display = 'none';
   document.getElementById('view-downloads').style.display = 'none';
   
@@ -187,10 +196,112 @@ function switchTab(tab) {
     document.getElementById('search-header').style.display = 'none';
     document.getElementById('view-' + tab).style.display = 'block';
     if(tab === 'favs') renderListTo('list-favs', favs, 'Избранное');
-    else renderListTo('list-downloads', downloads, 'Скачанные');
+    if(tab === 'downloads') renderListTo('list-downloads', downloads, 'Скачанные');
+    if(tab === 'playlists') renderPlaylists();
   }
 }
 
+// === ПЛЕЙЛИСТЫ ===
+function renderPlaylists() {
+  var container = document.getElementById('list-playlists');
+  if(currentPlaylistView) {
+    // Показываем треки внутри плейлиста
+    var tracks = playlists[currentPlaylistView] || [];
+    var html = '<div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">' +
+               '<button onclick="currentPlaylistView=null; renderPlaylists();" style="background:none; border:none; color:#fff; font-size:24px;">←</button>' +
+               '<div class="section-title" style="margin:0;">'+currentPlaylistView+'</div></div>';
+    container.innerHTML = html;
+    if(tracks.length === 0) { container.innerHTML += '<p style="color:#aaa;">Плейлист пуст</p>'; return; }
+    
+    // Сохраняем текущий плейлист в очередь для плеера
+    window.currentPlaylistQueue = tracks;
+    renderListTo('list-playlists', tracks, '');
+    return;
+  }
+
+  var html = '<div class="section-title">Ваши плейлисты</div>';
+  html += '<button onclick="createNewPlaylist()" style="width:100%; padding:15px; background:#282828; color:#fff; border:none; border-radius:8px; margin-bottom:15px; font-weight:bold; cursor:pointer;">+ Создать плейлист</button>';
+  
+  var keys = Object.keys(playlists);
+  if(keys.length === 0) {
+    container.innerHTML = html + '<p style="text-align:center; color:#aaa; margin-top:20px;">У вас пока нет плейлистов</p>';
+    return;
+  }
+
+  for(var i=0; i<keys.length; i++) {
+    var name = keys[i];
+    var count = playlists[name].length;
+    html += '<div onclick="currentPlaylistView=\''+name+'\'; renderPlaylists();" style="display:flex; align-items:center; gap:15px; padding:15px; background:#181818; border-radius:8px; margin-bottom:10px; cursor:pointer;">' +
+            '<svg viewBox="0 0 24 24" width="30" height="30" fill="#aaa"><path d="M4 10h12v2H4zm0-4h12v2H4zm0 8h8v2H4zm10 0v6l5-3z"/></svg>' +
+            '<div><div style="font-weight:bold; font-size:16px;">'+name+'</div><div style="font-size:13px; color:#aaa;">'+count+' треков</div></div>' +
+            '</div>';
+  }
+  container.innerHTML = html;
+}
+
+function createNewPlaylist() {
+  var name = prompt("Введите название плейлиста:");
+  if(!name || name.trim() === '') return;
+  name = name.trim();
+  if(!playlists[name]) {
+    playlists[name] = [];
+    localStorage.setItem('playlists', JSON.stringify(playlists));
+    renderPlaylists();
+  } else {
+    alert("Такой плейлист уже есть!");
+  }
+}
+
+function addToPlaylistById(id) {
+  var track = null;
+  for(var i=0; i<queue.length; i++) { if(queue[i].id === id) track = queue[i]; }
+  if(!track) return;
+
+  var keys = Object.keys(playlists);
+  if(keys.length === 0) {
+    var newName = prompt("У вас нет плейлистов. Создать новый (введите название):");
+    if(!newName) return;
+    playlists[newName] = [track];
+    localStorage.setItem('playlists', JSON.stringify(playlists));
+    alert("Добавлено в новый плейлист: " + newName);
+    return;
+  }
+
+  var msg = "В какой плейлист добавить?\n\n";
+  for(var i=0; i<keys.length; i++) { msg += (i+1) + ". " + keys[i] + "\n"; }
+  msg += "\n(Введите номер плейлиста, или 0 для создания нового)";
+
+  var choice = prompt(msg);
+  if(choice === null) return;
+  var num = parseInt(choice);
+  
+  if(num === 0) {
+    var newName = prompt("Название нового плейлиста:");
+    if(newName) {
+      playlists[newName] = [track];
+      localStorage.setItem('playlists', JSON.stringify(playlists));
+      alert("Добавлено в: " + newName);
+    }
+  } else if(num > 0 && num <= keys.length) {
+    var pName = keys[num-1];
+    // Проверяем, нет ли уже этого трека
+    var exists = false;
+    for(var j=0; j<playlists[pName].length; j++) { if(playlists[pName][j].id === track.id) exists = true; }
+    if(!exists) {
+      playlists[pName].push(track);
+      localStorage.setItem('playlists', JSON.stringify(playlists));
+      alert("Добавлено в плейлист: " + pName);
+    } else {
+      alert("Этот трек уже есть в плейлисте " + pName);
+    }
+  }
+}
+
+function addCurrentToPlaylist() {
+  if(currentIndex !== -1) addToPlaylistById(queue[currentIndex].id);
+}
+
+// === ОСНОВНЫЕ ФУНКЦИИ ===
 function doSearch() {
   var q = document.getElementById('q').value; if(!q) return;
   switchTab('search');
@@ -219,21 +330,21 @@ function renderListTo(containerId, data, title) {
     var isFav = false; for(var j=0; j<favs.length; j++) { if(favs[j].id === track.id) isFav = true; }
     var isDl = false; for(var k=0; k<downloads.length; k++) { if(downloads[k].id === track.id) isDl = true; }
     
-    var heartIcon = isFav ? iconHeartFill : iconHeart;
-    var dlIcon = isDl ? iconCheck : iconDl;
-    
     html += '<div class="track">' +
               '<img src="'+(track.thumb||defaultImg)+'" onerror="this.src=\''+defaultImg+'\'" onclick="playTrackFromList(\''+track.id+'\')">' +
               '<div class="track-info" onclick="playTrackFromList(\''+track.id+'\')"><div class="t-title">'+track.title+'</div><div class="t-artist">'+track.artist+'</div></div>' +
-              '<button class="action-btn '+(isFav?'active':'')+'" id="fav-'+track.id+'" onclick="toggleFavById(\''+track.id+'\', this)"><svg viewBox="0 0 24 24" width="24" height="24">'+heartIcon+'</svg></button>' +
-              '<button class="action-btn" id="dl-'+track.id+'" onclick="downloadById(\''+track.id+'\', this)"><svg viewBox="0 0 24 24" width="24" height="24">'+dlIcon+'</svg></button>' +
+              '<button class="action-btn '+(isFav?'active':'')+'" onclick="toggleFavById(\''+track.id+'\', this)"><svg viewBox="0 0 24 24">'+(isFav?iconHeartFill:iconHeart)+'</svg></button>' +
+              '<button class="action-btn" onclick="addToPlaylistById(\''+track.id+'\')"><svg viewBox="0 0 24 24">'+iconAdd+'</svg></button>' +
+              '<button class="action-btn" onclick="downloadById(\''+track.id+'\', this)"><svg viewBox="0 0 24 24">'+(isDl?iconCheck:iconDl)+'</svg></button>' +
             '</div>';
   }
   container.innerHTML = html;
 }
 
 function playTrackFromList(id) {
-  for(var i=0; i<queue.length; i++) { if(queue[i].id === id) { playTrack(i); return; } }
+  var list = queue;
+  if(window.currentPlaylistQueue) list = window.currentPlaylistQueue;
+  for(var i=0; i<list.length; i++) { if(list[i].id === id) { queue = list; playTrack(i); return; } }
 }
 
 function toggleFavById(id, btn) {
@@ -246,121 +357,13 @@ function toggleFavById(id, btn) {
   
   if(idx !== -1) { 
     favs.splice(idx, 1); 
-    btn.className = 'action-btn'; 
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconHeart+'</svg>'; 
+    if(btn) { btn.className = 'action-btn'; btn.innerHTML = '<svg viewBox="0 0 24 24">'+iconHeart+'</svg>'; }
   } else { 
     favs.push(track); 
-    btn.className = 'action-btn active'; 
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconHeartFill+'</svg>'; 
+    if(btn) { btn.className = 'action-btn active'; btn.innerHTML = '<svg viewBox="0 0 24 24">'+iconHeartFill+'</svg>'; }
   }
   
   localStorage.setItem('favs', JSON.stringify(favs));
   if(currentIndex !== -1 && queue[currentIndex].id === id) {
     document.getElementById('fp-fav').className = idx === -1 ? 'fp-action-btn active' : 'fp-action-btn';
-    document.getElementById('fp-fav').innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">' + (idx === -1 ? iconHeartFill : iconHeart) + '</svg>';
-  }
-}
-
-function downloadById(id, btn) {
-  var track = null;
-  for(var i=0; i<queue.length; i++) { if(queue[i].id === id) track = queue[i]; }
-  if(!track) return;
-  
-  btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 2v4l2.3-2.3L12 2z" fill="currentColor"/></svg>'; // Часики-заглушка
-  
-  fetch('/download', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id: track.id, url: track.url})})
-  .then(function(r) { return r.json(); })
-  .then(function(d) {
-    if(d.error) throw new Error(d.error);
-    track.file = d.file;
-    var idx = -1;
-    for(var i=0; i<downloads.length; i++) { if(downloads[i].id === track.id) idx = i; }
-    if(idx !== -1) downloads.splice(idx, 1);
-    downloads.push(track);
-    localStorage.setItem('downloads', JSON.stringify(downloads));
-    
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconCheck+'</svg>';
-    if(currentIndex !== -1 && queue[currentIndex].id === id) {
-      document.getElementById('fp-dl').innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconCheck+'</svg>';
-    }
-    if(document.getElementById('tab-downloads').className.indexOf('active') !== -1) switchTab('downloads');
-  }).catch(function(e) { 
-    alert('Ошибка: ' + e.message); 
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+iconDl+'</svg>'; 
-  });
-}
-
-function playTrack(index) {
-  currentIndex = index;
-  var t = queue[index];
-  
-  document.getElementById('full-player').style.display = 'flex';
-  document.getElementById('mini-player').style.display = 'flex';
-  document.getElementById('fp-thumb').src = t.thumb || defaultImg;
-  document.getElementById('mini-thumb').src = t.thumb || defaultImg;
-  document.getElementById('fp-title').innerText = t.title;
-  document.getElementById('mini-title').innerText = t.title;
-  document.getElementById('fp-artist').innerText = 'Загрузка...';
-  
-  var isFav = false; for(var i=0; i<favs.length; i++) { if(favs[i].id === t.id) isFav = true; }
-  document.getElementById('fp-fav').innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+(isFav?iconHeartFill:iconHeart)+'</svg>';
-  document.getElementById('fp-fav').className = 'fp-action-btn ' + (isFav?'active':'');
-  
-  var isDl = false; for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) isDl = true; }
-  document.getElementById('fp-dl').innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24">'+(isDl?iconCheck:iconDl)+'</svg>';
-
-  audio.pause();
-  var downloaded = null;
-  for(var i=0; i<downloads.length; i++) { if(downloads[i].id === t.id) downloaded = downloads[i]; }
-
-  if (downloaded) {
-    audio.src = '/play/' + downloaded.file; 
-    audio.load();
-    audio.play();
-    document.getElementById('fp-artist').innerText = t.artist;
-  } else {
-    fetch('/stream_url?url=' + encodeURIComponent(t.url))
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if(d.stream_url) {
-        audio.src = d.stream_url; 
-        audio.load();
-        audio.play();
-        document.getElementById('fp-artist').innerText = t.artist;
-      } else throw new Error('Нет потока');
-    }).catch(function() {
-      downloadById(t.id, document.getElementById('fp-dl'));
-      setTimeout(function(){ playTrack(index); }, 3000);
-    });
-  }
-}
-
-function togglePlay() {
-  if(!audio.src) return;
-  if(audio.paused) audio.play();
-  else audio.pause();
-}
-
-function toggleFavCurrent() {
-  if(currentIndex !== -1) toggleFavById(queue[currentIndex].id, document.getElementById('fp-fav'));
-}
-function downloadCurrent() {
-  if(currentIndex !== -1) downloadById(queue[currentIndex].id, document.getElementById('fp-dl'));
-}
-function playNext() { if(queue.length) { currentIndex = (currentIndex + 1) % queue.length; playTrack(currentIndex); } }
-function playPrev() { if(queue.length) { currentIndex = (currentIndex - 1 + queue.length) % queue.length; playTrack(currentIndex); } }
-function openFullPlayer() { if(currentIndex !== -1) document.getElementById('full-player').style.display = 'flex'; }
-function closeFullPlayer() { document.getElementById('full-player').style.display = 'none'; }
-function updateProgress() {
-  if(!audio.duration || audio.duration === Infinity) return;
-  document.getElementById('seekBar').value = (audio.currentTime / audio.duration) * 100;
-  document.getElementById('time-current').innerText = fmt(audio.currentTime);
-  document.getElementById('time-total').innerText = fmt(audio.duration);
-}
-function seekAudio() { if(audio.duration) audio.currentTime = (document.getElementById('seekBar').value / 100) * audio.duration; }
-function fmt(s) { var m = Math.floor(s / 60); var sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
-
-switchTab('search');
-</script>
-</body>
-</html>
+    document.getElementById('fp-fav').innerHTML = '<svg vi
