@@ -120,7 +120,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; bac
 <audio id="audio" ontimeupdate="updateProgress()" onended="playNext()"></audio>
 
 <script>
-// Безопасная загрузка данных
 function getStorage(key) {
     try { 
         var item = localStorage.getItem(key); 
@@ -410,4 +409,4 @@ function togglePlay() {
   if(a.paused) { a.play(); document.getElementById('main-play-btn').innerText = '❚❚'; document.getElementById('mini-play-btn').innerText = '❚❚'; }
   else { a.pause(); document.getElementById('main-play-btn').innerText = '▶'; document.getElementById('mini-play-btn').innerText = '▶'; }
 }
-function playNext() { if(queue.l
+function playNext() { if(queue.length===0) return; currentInde
